@@ -10,6 +10,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked@12.0.0/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.5/dist/purify.min.js"></script>
     <style>
         /* ============================
            BASE / RESET
@@ -1439,22 +1440,22 @@
                 <div class="notes-layout">
                     <div class="notes-sidebar">
                         <div class="notes-sidebar-header">
-                            <input type="text" class="form-input" id="notesSearch" placeholder="Search notes…">
+                            <input type="text" class="form-input" id="notesSearch" placeholder="Search notes…" data-i18n="notes.search">
                             <button class="btn btn-primary notes-new-btn" id="newNoteBtn" title="New note">+</button>
                         </div>
                         <select class="form-select" id="notesSubjectFilter" style="margin-bottom:10px;">
-                            <option value="">All subjects</option>
+                            <option value="" data-i18n="notes.allSubjects">All subjects</option>
                         </select>
                         <div id="notesList" class="notes-list"></div>
                     </div>
                     <div class="notes-editor" id="notesEditor">
                         <div class="notes-empty" id="notesEmptyState">
                             <div class="empty-state-icon">📓</div>
-                            <p>Select a note or create a new one</p>
+                            <p data-i18n="notes.empty">Select a note or create a new one</p>
                         </div>
                         <div class="notes-editor-inner" id="notesEditorInner" style="display:none">
                             <div class="notes-editor-top">
-                                <input type="text" class="notes-title-input" id="noteTitleInput" placeholder="Untitled">
+                                <input type="text" class="notes-title-input" id="noteTitleInput" placeholder="Untitled" data-i18n="notes.untitled">
                                 <select class="form-select notes-subject-select" id="noteSubjectSelect"></select>
                                 <button class="icon-btn" id="deleteNoteBtn" title="Delete note">🗑️</button>
                             </div>
@@ -1468,16 +1469,16 @@
                                 <button type="button" class="md-btn" data-md="code" title="Code">&lt;/&gt;</button>
                                 <div class="notes-toolbar-spacer"></div>
                                 <div class="notes-view-toggle" id="notesViewToggle">
-                                    <button type="button" class="mv-btn active" data-mode="edit">Edit</button>
-                                    <button type="button" class="mv-btn" data-mode="split">Split</button>
-                                    <button type="button" class="mv-btn" data-mode="preview">Preview</button>
+                                    <button type="button" class="mv-btn active" data-mode="edit" data-i18n="notes.modeEdit">Edit</button>
+                                    <button type="button" class="mv-btn" data-mode="split" data-i18n="notes.modeSplit">Split</button>
+                                    <button type="button" class="mv-btn" data-mode="preview" data-i18n="notes.modePreview">Preview</button>
                                 </div>
                             </div>
                             <div class="notes-body" id="notesBody">
-                                <textarea class="notes-textarea" id="noteContentInput" placeholder="Start writing in Markdown…"></textarea>
+                                <textarea class="notes-textarea" id="noteContentInput" placeholder="Start writing in Markdown…" data-i18n="notes.startWriting"></textarea>
                                 <div class="notes-preview" id="notePreview"></div>
                             </div>
-                            <div class="notes-status" id="notesStatus">Saved</div>
+                            <div class="notes-status" id="notesStatus" data-i18n="notes.saved">Saved</div>
                         </div>
                     </div>
                 </div>
@@ -1693,15 +1694,7 @@
                 </div>
                 <div class="form-group">
                     <label class="form-label" data-i18n="timetable.day">Day</label>
-                    <select class="form-select" id="ttDay">
-                        <option value="0">Monday</option>
-                        <option value="1">Tuesday</option>
-                        <option value="2">Wednesday</option>
-                        <option value="3">Thursday</option>
-                        <option value="4">Friday</option>
-                        <option value="5">Saturday</option>
-                        <option value="6">Sunday</option>
-                    </select>
+                    <select class="form-select" id="ttDay"></select>
                 </div>
                 <div class="form-group" style="display:flex;gap:12px;">
                     <div style="flex:1;">
@@ -1744,8 +1737,9 @@
             settings:{ title:"Settings", theme:"Theme", selectTheme:"Choose your aesthetic", language:"Language", selectLanguage:"Select your language", category:"Category", selectCategory:"What best describes you?", pomodoro:"Pomodoro Durations", workMin:"Focus length (minutes)", breakMin:"Break length (minutes)" },
             category:{ primary:"Primary School", middle:"Middle School", "9th":"9th Grade", "10th":"10th Grade", "11th":"11th Grade", "12th":"12th Grade", sat:"SAT Preparation", act:"ACT Preparation", alevels:"A-Levels", ib:"International Baccalaureate", university:"University", graduate:"Graduate School", teaching:"Teaching", work:"Work/Professional", other:"Other" },
             common:{ cancel:"Cancel", save:"Save", delete:"Delete" },
-            timetable:{ title:"My Timetable", addNew:"+ Add to Timetable", add:"Add to Timetable", edit:"Edit Entry", name:"Title", day:"Day", start:"Start Time", end:"End Time", subject:"Subject", location:"Location (optional)", deleteConfirm:"Remove this from your timetable?" },
+            timetable:{ title:"My Timetable", addNew:"+ Add to Timetable", add:"Add to Timetable", edit:"Edit Entry", name:"Title", day:"Day", start:"Start Time", end:"End Time", subject:"Subject", location:"Location (optional)", deleteConfirm:"Remove this from your timetable?", days:["Mon","Tue","Wed","Thu","Fri","Sat","Sun"], daysLong:["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"] },
             tasks:{ title:"My Tasks", addNew:"+ Add New Task", add:"Add Task", edit:"Edit Task", name:"Task Title", subject:"Subject", dueDate:"Due Date", noSubject:"No subject", noDate:"No due date", filterActive:"Active", filterAll:"All", filterDone:"Completed", noTasks:"Nothing here yet. Add a task to get started!", overdue:"Overdue", today:"Today", thisWeek:"This Week", later:"Later", noDueGroup:"No Due Date", added:"Task added", updated:"Task updated", deleted:"Task deleted", deleteConfirm:"Delete this task?" },
+            notes:{ search:"Search notes…", newNote:"New note", untitled:"Untitled", empty:"Select a note or create a new one", allSubjects:"All subjects", noSubject:"No subject", startWriting:"Start writing in Markdown…", saved:"Saved", saving:"Saving…", noContent:"No content yet", deleteConfirm:"Delete this note? This cannot be undone.", deleted:"Note deleted", modeEdit:"Edit", modeSplit:"Split", modePreview:"Preview" },
             messages:{ sessionComplete:"Session completed!", subjectAdded:"Subject added", subjectUpdated:"Subject updated", subjectDeleted:"Subject deleted", deleteConfirm:"Are you sure you want to delete this subject?", minSession:"Session must be at least 1 minute", selectSubjectFirst:"Please select a subject first" },
             themes:{ default:"Default", darkAcademia:"Dark Academia", cottagecore:"Cottagecore", vaporwave:"Vaporwave", fairycore:"Fairycore", cyberpunk:"Cyberpunk", nord:"Nord", sunset:"Sunset", ocean:"Ocean", forest:"Forest", lavender:"Lavender", monochrome:"Monochrome", retro90s:"Retro 90s", neubrutalism:"Neubrutalism", glassmorphism:"Glassmorphism", neumorphism:"Neumorphism", flat:"Flat Design", bento:"Bento Grid", dreamcore:"Dreamcore", cybercore:"Cybercore", kidcore:"Kidcore", gorpcore:"Gorpcore", bauhaus:"Bauhaus", artnouveau:"Art Nouveau", popart:"Pop Art", brutalism:"Brutalism", bratsummer:"Brat Summer", mobwife:"Mob Wife", cleanical:"Cleanical", aquatic:"Aquatic", sixtyseven:"67 ✨" }
         },
@@ -1757,7 +1751,10 @@
             stats:{ today:"Hoy", week:"Esta Semana", allTime:"Total", subjectDist:"Distribución", dailyStudy:"Tiempo de Estudio", daily:"Diario (7 días)", weekly:"Semanal (8 semanas)", allTimeChart:"Total", noData:"Aún no hay datos" },
             settings:{ title:"Configuración", theme:"Tema", selectTheme:"Elige tu estética", language:"Idioma", selectLanguage:"Selecciona tu idioma", category:"Categoría", selectCategory:"¿Qué te describe mejor?" },
             category:{ primary:"Escuela Primaria", middle:"Secundaria", "9th":"9º Grado", "10th":"10º Grado", "11th":"11º Grado", "12th":"12º Grado", sat:"SAT", act:"ACT", alevels:"A-Levels", ib:"Bachillerato Internacional", university:"Universidad", graduate:"Posgrado", teaching:"Enseñanza", work:"Trabajo", other:"Otro" },
-            common:{ cancel:"Cancelar", save:"Guardar" },
+            common:{ cancel:"Cancelar", save:"Guardar", delete:"Eliminar" },
+            timetable:{ title:"Mi Horario", addNew:"+ Añadir al Horario", add:"Añadir al Horario", edit:"Editar Entrada", name:"Título", day:"Día", start:"Hora de Inicio", end:"Hora de Fin", subject:"Materia", location:"Ubicación (opcional)", deleteConfirm:"¿Eliminar esto de tu horario?", days:["Lun","Mar","Mié","Jue","Vie","Sáb","Dom"], daysLong:["Lunes","Martes","Miércoles","Jueves","Viernes","Sábado","Domingo"] },
+            tasks:{ title:"Mis Tareas", addNew:"+ Añadir Tarea", add:"Añadir Tarea", edit:"Editar Tarea", name:"Título de la Tarea", subject:"Materia", dueDate:"Fecha Límite", noSubject:"Sin materia", noDate:"Sin fecha límite", filterActive:"Activas", filterAll:"Todas", filterDone:"Completadas", noTasks:"Nada aquí todavía. ¡Añade una tarea para empezar!", overdue:"Vencidas", today:"Hoy", thisWeek:"Esta Semana", later:"Más Tarde", noDueGroup:"Sin Fecha Límite", added:"Tarea añadida", updated:"Tarea actualizada", deleted:"Tarea eliminada", deleteConfirm:"¿Eliminar esta tarea?" },
+            notes:{ search:"Buscar notas…", newNote:"Nueva nota", untitled:"Sin título", empty:"Selecciona una nota o crea una nueva", allSubjects:"Todas las materias", noSubject:"Sin materia", startWriting:"Empieza a escribir en Markdown…", saved:"Guardado", saving:"Guardando…", noContent:"Sin contenido aún", deleteConfirm:"¿Eliminar esta nota? Esto no se puede deshacer.", deleted:"Nota eliminada", modeEdit:"Editar", modeSplit:"Dividir", modePreview:"Vista previa" },
             messages:{ sessionComplete:"¡Sesión completada!", subjectAdded:"Materia añadida", subjectUpdated:"Materia actualizada", subjectDeleted:"Materia eliminada", deleteConfirm:"¿Eliminar esta materia?", minSession:"Mínimo 1 minuto", selectSubjectFirst:"Selecciona una materia primero" },
             themes:{ default:"Predeterminado", darkAcademia:"Academia Oscura", cottagecore:"Campo", vaporwave:"Vaporwave", fairycore:"Hada", cyberpunk:"Cyberpunk", nord:"Nord", sunset:"Atardecer", ocean:"Océano", forest:"Bosque", lavender:"Lavanda", monochrome:"Monocromo", retro90s:"Retro 90s", neubrutalism:"Neobrutalism", glassmorphism:"Glassmorphism", neumorphism:"Neumorfismo", flat:"Diseño Plano", bento:"Bento Grid", dreamcore:"Dreamcore", cybercore:"Cybercore", kidcore:"Kidcore", gorpcore:"Gorpcore", bauhaus:"Bauhaus", artnouveau:"Art Nouveau", popart:"Pop Art", brutalism:"Brutalismo", bratsummer:"Verano Brat", mobwife:"Mob Wife", cleanical:"Clínico", aquatic:"Acuático", sixtyseven:"67 ✨" }
         },
@@ -1769,7 +1766,10 @@
             stats:{ today:"Aujourd'hui", week:"Cette Semaine", allTime:"Total", subjectDist:"Distribution", dailyStudy:"Temps d'étude", daily:"Quotidien (7j)", weekly:"Hebdo (8 sem.)", allTimeChart:"Total", noData:"Aucune donnée" },
             settings:{ title:"Paramètres", theme:"Thème", selectTheme:"Choisissez votre esthétique", language:"Langue", selectLanguage:"Sélectionnez votre langue", category:"Catégorie", selectCategory:"Qu'est-ce qui vous décrit?" },
             category:{ primary:"École Primaire", middle:"Collège", "9th":"9ème", "10th":"10ème", "11th":"11ème", "12th":"12ème", sat:"SAT", act:"ACT", alevels:"A-Levels", ib:"Bac International", university:"Université", graduate:"Master/Doctorat", teaching:"Enseignement", work:"Travail", other:"Autre" },
-            common:{ cancel:"Annuler", save:"Sauvegarder" },
+            common:{ cancel:"Annuler", save:"Sauvegarder", delete:"Supprimer" },
+            timetable:{ title:"Mon Emploi du Temps", addNew:"+ Ajouter à l'Emploi du Temps", add:"Ajouter à l'Emploi du Temps", edit:"Modifier l'Entrée", name:"Titre", day:"Jour", start:"Heure de Début", end:"Heure de Fin", subject:"Matière", location:"Lieu (optionnel)", deleteConfirm:"Supprimer de l'emploi du temps ?", days:["Lun","Mar","Mer","Jeu","Ven","Sam","Dim"], daysLong:["Lundi","Mardi","Mercredi","Jeudi","Vendredi","Samedi","Dimanche"] },
+            tasks:{ title:"Mes Tâches", addNew:"+ Ajouter une Tâche", add:"Ajouter une Tâche", edit:"Modifier la Tâche", name:"Titre de la Tâche", subject:"Matière", dueDate:"Date d'Échéance", noSubject:"Aucune matière", noDate:"Aucune échéance", filterActive:"Actives", filterAll:"Toutes", filterDone:"Terminées", noTasks:"Rien ici pour l'instant. Ajoutez une tâche pour commencer !", overdue:"En Retard", today:"Aujourd'hui", thisWeek:"Cette Semaine", later:"Plus Tard", noDueGroup:"Sans Échéance", added:"Tâche ajoutée", updated:"Tâche mise à jour", deleted:"Tâche supprimée", deleteConfirm:"Supprimer cette tâche ?" },
+            notes:{ search:"Rechercher des notes…", newNote:"Nouvelle note", untitled:"Sans titre", empty:"Sélectionnez une note ou créez-en une nouvelle", allSubjects:"Toutes les matières", noSubject:"Aucune matière", startWriting:"Commencez à écrire en Markdown…", saved:"Enregistré", saving:"Enregistrement…", noContent:"Pas encore de contenu", deleteConfirm:"Supprimer cette note ? Cette action est irréversible.", deleted:"Note supprimée", modeEdit:"Modifier", modeSplit:"Diviser", modePreview:"Aperçu" },
             messages:{ sessionComplete:"Session terminée!", subjectAdded:"Matière ajoutée", subjectUpdated:"Matière mise à jour", subjectDeleted:"Matière supprimée", deleteConfirm:"Supprimer cette matière?", minSession:"Minimum 1 minute", selectSubjectFirst:"Sélectionnez une matière d'abord" },
             themes:{ default:"Par Défaut", darkAcademia:"Académie Sombre", cottagecore:"Champêtre", vaporwave:"Vaporwave", fairycore:"Féerique", cyberpunk:"Cyberpunk", nord:"Nord", sunset:"Coucher", ocean:"Océan", forest:"Forêt", lavender:"Lavande", monochrome:"Monochrome", retro90s:"Rétro 90s", neubrutalism:"Néobrutalism", glassmorphism:"Glassmorphism", neumorphism:"Neumorphisme", flat:"Design Plat", bento:"Bento Grid", dreamcore:"Dreamcore", cybercore:"Cybercore", kidcore:"Kidcore", gorpcore:"Gorpcore", bauhaus:"Bauhaus", artnouveau:"Art Nouveau", popart:"Pop Art", brutalism:"Brutalisme", bratsummer:"Été Brat", mobwife:"Mob Wife", cleanical:"Clinique", aquatic:"Aquatique", sixtyseven:"67 ✨" }
         },
@@ -1781,7 +1781,10 @@
             stats:{ today:"Heute", week:"Diese Woche", allTime:"Gesamt", subjectDist:"Fächerverteilung", dailyStudy:"Lernzeit", daily:"Täglich (7 Tage)", weekly:"Wöchentlich (8 Wochen)", allTimeChart:"Gesamt", noData:"Noch keine Daten" },
             settings:{ title:"Einstellungen", theme:"Thema", selectTheme:"Wähle deine Ästhetik", language:"Sprache", selectLanguage:"Wähle deine Sprache", category:"Kategorie", selectCategory:"Was beschreibt dich am besten?" },
             category:{ primary:"Grundschule", middle:"Mittelschule", "9th":"9. Klasse", "10th":"10. Klasse", "11th":"11. Klasse", "12th":"12. Klasse", sat:"SAT", act:"ACT", alevels:"A-Levels", ib:"Internationales Abitur", university:"Universität", graduate:"Masterstudium", teaching:"Lehre", work:"Arbeit", other:"Andere" },
-            common:{ cancel:"Abbrechen", save:"Speichern" },
+            common:{ cancel:"Abbrechen", save:"Speichern", delete:"Löschen" },
+            timetable:{ title:"Mein Stundenplan", addNew:"+ Zum Stundenplan hinzufügen", add:"Zum Stundenplan hinzufügen", edit:"Eintrag bearbeiten", name:"Titel", day:"Tag", start:"Startzeit", end:"Endzeit", subject:"Fach", location:"Ort (optional)", deleteConfirm:"Aus dem Stundenplan entfernen?", days:["Mo","Di","Mi","Do","Fr","Sa","So"], daysLong:["Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag","Sonntag"] },
+            tasks:{ title:"Meine Aufgaben", addNew:"+ Neue Aufgabe", add:"Aufgabe hinzufügen", edit:"Aufgabe bearbeiten", name:"Aufgabentitel", subject:"Fach", dueDate:"Fälligkeitsdatum", noSubject:"Kein Fach", noDate:"Kein Fälligkeitsdatum", filterActive:"Aktiv", filterAll:"Alle", filterDone:"Erledigt", noTasks:"Hier ist noch nichts. Füge eine Aufgabe hinzu, um zu beginnen!", overdue:"Überfällig", today:"Heute", thisWeek:"Diese Woche", later:"Später", noDueGroup:"Kein Fälligkeitsdatum", added:"Aufgabe hinzugefügt", updated:"Aufgabe aktualisiert", deleted:"Aufgabe gelöscht", deleteConfirm:"Diese Aufgabe löschen?" },
+            notes:{ search:"Notizen durchsuchen…", newNote:"Neue Notiz", untitled:"Ohne Titel", empty:"Wähle eine Notiz aus oder erstelle eine neue", allSubjects:"Alle Fächer", noSubject:"Kein Fach", startWriting:"Beginne in Markdown zu schreiben…", saved:"Gespeichert", saving:"Speichern…", noContent:"Noch kein Inhalt", deleteConfirm:"Diese Notiz löschen? Dies kann nicht rückgängig gemacht werden.", deleted:"Notiz gelöscht", modeEdit:"Bearbeiten", modeSplit:"Geteilt", modePreview:"Vorschau" },
             messages:{ sessionComplete:"Sitzung abgeschlossen!", subjectAdded:"Fach hinzugefügt", subjectUpdated:"Fach aktualisiert", subjectDeleted:"Fach gelöscht", deleteConfirm:"Dieses Fach löschen?", minSession:"Mindestens 1 Minute", selectSubjectFirst:"Bitte wähle erst ein Fach" },
             themes:{ default:"Standard", darkAcademia:"Dunkle Akademie", cottagecore:"Landleben", vaporwave:"Vaporwave", fairycore:"Fee", cyberpunk:"Cyberpunk", nord:"Nord", sunset:"Sonnenuntergang", ocean:"Ozean", forest:"Wald", lavender:"Lavendel", monochrome:"Monochrom", retro90s:"Retro 90er", neubrutalism:"Neobrutalism", glassmorphism:"Glassmorphism", neumorphism:"Neumorphismus", flat:"Flaches Design", bento:"Bento Grid", dreamcore:"Dreamcore", cybercore:"Cybercore", kidcore:"Kidcore", gorpcore:"Gorpcore", bauhaus:"Bauhaus", artnouveau:"Art Nouveau", popart:"Pop Art", brutalism:"Brutalismus", bratsummer:"Brat Sommer", mobwife:"Mob Wife", cleanical:"Klinisch", aquatic:"Aquatisch", sixtyseven:"67 ✨" }
         },
@@ -1793,7 +1796,10 @@
             stats:{ today:"今天", week:"本周", allTime:"总计", subjectDist:"科目分布", dailyStudy:"学习时间", daily:"每日（7天）", weekly:"每周（8周）", allTimeChart:"总计", noData:"暂无数据" },
             settings:{ title:"设置", theme:"主题", selectTheme:"选择您的美学", language:"语言", selectLanguage:"选择您的语言", category:"类别", selectCategory:"最能描述您的是？" },
             category:{ primary:"小学", middle:"中学", "9th":"九年级", "10th":"十年级", "11th":"十一年级", "12th":"十二年级", sat:"SAT备考", act:"ACT备考", alevels:"A-Levels", ib:"国际文凭", university:"大学", graduate:"研究生", teaching:"教学", work:"工作/职业", other:"其他" },
-            common:{ cancel:"取消", save:"保存" },
+            common:{ cancel:"取消", save:"保存", delete:"删除" },
+            timetable:{ title:"我的课程表", addNew:"+ 添加到课程表", add:"添加到课程表", edit:"编辑条目", name:"标题", day:"星期", start:"开始时间", end:"结束时间", subject:"科目", location:"地点（可选）", deleteConfirm:"从课程表中删除此项？", days:["周一","周二","周三","周四","周五","周六","周日"], daysLong:["星期一","星期二","星期三","星期四","星期五","星期六","星期日"] },
+            tasks:{ title:"我的任务", addNew:"+ 添加新任务", add:"添加任务", edit:"编辑任务", name:"任务标题", subject:"科目", dueDate:"截止日期", noSubject:"无科目", noDate:"无截止日期", filterActive:"进行中", filterAll:"全部", filterDone:"已完成", noTasks:"这里还没有任务，添加一个开始吧！", overdue:"已逾期", today:"今天", thisWeek:"本周", later:"以后", noDueGroup:"无截止日期", added:"任务已添加", updated:"任务已更新", deleted:"任务已删除", deleteConfirm:"删除此任务？" },
+            notes:{ search:"搜索笔记…", newNote:"新建笔记", untitled:"无标题", empty:"选择一篇笔记或新建一篇", allSubjects:"所有科目", noSubject:"无科目", startWriting:"开始使用 Markdown 写作…", saved:"已保存", saving:"保存中…", noContent:"暂无内容", deleteConfirm:"删除此笔记？此操作无法撤销。", deleted:"笔记已删除", modeEdit:"编辑", modeSplit:"分屏", modePreview:"预览" },
             messages:{ sessionComplete:"学习完成！", subjectAdded:"科目已添加", subjectUpdated:"科目已更新", subjectDeleted:"科目已删除", deleteConfirm:"确定要删除此科目吗？", minSession:"学习时长必须至少1分钟", selectSubjectFirst:"请先选择一个科目" },
             themes:{ default:"默认", darkAcademia:"深色学院", cottagecore:"田园", vaporwave:"蒸汽波", fairycore:"仙女", cyberpunk:"赛博朋克", nord:"北欧", sunset:"日落", ocean:"海洋", forest:"森林", lavender:"薰衣草", monochrome:"单色", retro90s:"复古90年代", neubrutalism:"新粗野", glassmorphism:"玻璃态", neumorphism:"新拟态", flat:"扁平设计", bento:"便当格", dreamcore:"梦核", cybercore:"赛博核", kidcore:"童趣核", gorpcore:"户外核", bauhaus:"包豪斯", artnouveau:"新艺术", popart:"波普艺术", brutalism:"粗野主义", bratsummer:"顽皮夏日", mobwife:"黑帮妻子", cleanical:"临床风", aquatic:"水生", sixtyseven:"67 ✨" }
         },
@@ -1805,7 +1811,10 @@
             stats:{ today:"今日", week:"今週", allTime:"合計", subjectDist:"科目分布", dailyStudy:"学習時間", daily:"日別（7日間）", weekly:"週別（8週間）", allTimeChart:"合計", noData:"まだデータがありません" },
             settings:{ title:"設定", theme:"テーマ", selectTheme:"美学を選択", language:"言語", selectLanguage:"言語を選択", category:"カテゴリー", selectCategory:"あなたに最も当てはまるものは？" },
             category:{ primary:"小学校", middle:"中学校", "9th":"9年生", "10th":"10年生", "11th":"11年生", "12th":"12年生", sat:"SAT準備", act:"ACT準備", alevels:"Aレベル", ib:"国際バカロレア", university:"大学", graduate:"大学院", teaching:"教育", work:"仕事", other:"その他" },
-            common:{ cancel:"キャンセル", save:"保存" },
+            common:{ cancel:"キャンセル", save:"保存", delete:"削除" },
+            timetable:{ title:"時間割", addNew:"+ 時間割に追加", add:"時間割に追加", edit:"予定を編集", name:"タイトル", day:"曜日", start:"開始時刻", end:"終了時刻", subject:"科目", location:"場所（任意）", deleteConfirm:"時間割から削除しますか？", days:["月","火","水","木","金","土","日"], daysLong:["月曜日","火曜日","水曜日","木曜日","金曜日","土曜日","日曜日"] },
+            tasks:{ title:"タスク", addNew:"+ 新しいタスク", add:"タスクを追加", edit:"タスクを編集", name:"タスク名", subject:"科目", dueDate:"期限", noSubject:"科目なし", noDate:"期限なし", filterActive:"進行中", filterAll:"すべて", filterDone:"完了", noTasks:"タスクがまだありません。追加して始めましょう！", overdue:"期限超過", today:"今日", thisWeek:"今週", later:"それ以降", noDueGroup:"期限なし", added:"タスクを追加しました", updated:"タスクを更新しました", deleted:"タスクを削除しました", deleteConfirm:"このタスクを削除しますか？" },
+            notes:{ search:"ノートを検索…", newNote:"新規ノート", untitled:"無題", empty:"ノートを選択するか、新しく作成してください", allSubjects:"すべての科目", noSubject:"科目なし", startWriting:"Markdownで書き始める…", saved:"保存済み", saving:"保存中…", noContent:"まだ内容がありません", deleteConfirm:"このノートを削除しますか？元に戻せません。", deleted:"ノートを削除しました", modeEdit:"編集", modeSplit:"分割", modePreview:"プレビュー" },
             messages:{ sessionComplete:"セッション完了！", subjectAdded:"科目が追加されました", subjectUpdated:"科目が更新されました", subjectDeleted:"科目が削除されました", deleteConfirm:"この科目を削除しますか？", minSession:"最低1分必要です", selectSubjectFirst:"まず科目を選択してください" },
             themes:{ default:"デフォルト", darkAcademia:"ダークアカデミア", cottagecore:"カントリー", vaporwave:"ヴェイパー", fairycore:"フェアリー", cyberpunk:"サイバーパンク", nord:"ノルド", sunset:"サンセット", ocean:"オーシャン", forest:"フォレスト", lavender:"ラベンダー", monochrome:"モノクローム", retro90s:"レトロ90年代", neubrutalism:"ネオブルタリズム", glassmorphism:"グラスモーフィズム", neumorphism:"ニューモーフィズム", flat:"フラット", bento:"弁当", dreamcore:"ドリームコア", cybercore:"サイバーコア", kidcore:"キッドコア", gorpcore:"ゴープコア", bauhaus:"バウハウス", artnouveau:"アールヌーヴォー", popart:"ポップアート", brutalism:"ブルータリズム", bratsummer:"ブラットサマー", mobwife:"モブワイフ", cleanical:"クリニカル", aquatic:"アクアティック", sixtyseven:"67 ✨" }
         },
@@ -1817,7 +1826,10 @@
             stats:{ today:"오늘", week:"이번 주", allTime:"전체", subjectDist:"과목 분포", dailyStudy:"학습 시간", daily:"일별 (7일)", weekly:"주별 (8주)", allTimeChart:"전체", noData:"아직 데이터가 없습니다" },
             settings:{ title:"설정", theme:"테마", selectTheme:"미학 선택", language:"언어", selectLanguage:"언어를 선택하세요", category:"카테고리", selectCategory:"당신을 가장 잘 설명하는 것은?" },
             category:{ primary:"초등학교", middle:"중학교", "9th":"9학년", "10th":"10학년", "11th":"11학년", "12th":"12학년", sat:"SAT 준비", act:"ACT 준비", alevels:"A-레벨", ib:"국제 바칼로레아", university:"대학교", graduate:"대학원", teaching:"교육", work:"직장", other:"기타" },
-            common:{ cancel:"취소", save:"저장" },
+            common:{ cancel:"취소", save:"저장", delete:"삭제" },
+            timetable:{ title:"내 시간표", addNew:"+ 시간표에 추가", add:"시간표에 추가", edit:"일정 수정", name:"제목", day:"요일", start:"시작 시간", end:"종료 시간", subject:"과목", location:"장소 (선택)", deleteConfirm:"시간표에서 삭제하시겠습니까?", days:["월","화","수","목","금","토","일"], daysLong:["월요일","화요일","수요일","목요일","금요일","토요일","일요일"] },
+            tasks:{ title:"할 일", addNew:"+ 새 할 일 추가", add:"할 일 추가", edit:"할 일 수정", name:"할 일 제목", subject:"과목", dueDate:"마감일", noSubject:"과목 없음", noDate:"마감일 없음", filterActive:"진행 중", filterAll:"전체", filterDone:"완료됨", noTasks:"아직 할 일이 없습니다. 추가해서 시작해보세요!", overdue:"기한 초과", today:"오늘", thisWeek:"이번 주", later:"나중에", noDueGroup:"마감일 없음", added:"할 일이 추가되었습니다", updated:"할 일이 업데이트되었습니다", deleted:"할 일이 삭제되었습니다", deleteConfirm:"이 할 일을 삭제하시겠습니까?" },
+            notes:{ search:"노트 검색…", newNote:"새 노트", untitled:"제목 없음", empty:"노트를 선택하거나 새로 만드세요", allSubjects:"모든 과목", noSubject:"과목 없음", startWriting:"마크다운으로 작성을 시작하세요…", saved:"저장됨", saving:"저장 중…", noContent:"아직 내용이 없습니다", deleteConfirm:"이 노트를 삭제하시겠습니까? 되돌릴 수 없습니다.", deleted:"노트가 삭제되었습니다", modeEdit:"편집", modeSplit:"분할", modePreview:"미리보기" },
             messages:{ sessionComplete:"세션 완료!", subjectAdded:"과목이 추가되었습니다", subjectUpdated:"과목이 업데이트되었습니다", subjectDeleted:"과목이 삭제되었습니다", deleteConfirm:"이 과목을 삭제하시겠습니까?", minSession:"최소 1분이어야 합니다", selectSubjectFirst:"먼저 과목을 선택하세요" },
             themes:{ default:"기본", darkAcademia:"다크 아카데미아", cottagecore:"코티지코어", vaporwave:"베이퍼웨이브", fairycore:"페어리코어", cyberpunk:"사이버펑크", nord:"노르드", sunset:"석양", ocean:"바다", forest:"숲", lavender:"라벤더", monochrome:"모노크롬", retro90s:"레트로 90년대", neubrutalism:"네오브루탈리즘", glassmorphism:"글래스모피즘", neumorphism:"뉴모피즘", flat:"플랫 디자인", bento:"벤토 그리드", dreamcore:"드림코어", cybercore:"사이버코어", kidcore:"키드코어", gorpcore:"고프코어", bauhaus:"바우하우스", artnouveau:"아르누보", popart:"팝아트", brutalism:"브루탈리즘", bratsummer:"브랫 서머", mobwife:"몹 와이프", cleanical:"클리니컬", aquatic:"아쿠아틱", sixtyseven:"67 ✨" }
         },
@@ -1829,7 +1841,10 @@
             stats:{ today:"اليوم", week:"هذا الأسبوع", allTime:"الإجمالي", subjectDist:"توزيع المواد", dailyStudy:"وقت الدراسة", daily:"يومي (7 أيام)", weekly:"أسبوعي (8 أسابيع)", allTimeChart:"الإجمالي", noData:"لا توجد بيانات" },
             settings:{ title:"الإعدادات", theme:"المظهر", selectTheme:"اختر جماليتك", language:"اللغة", selectLanguage:"اختر لغتك", category:"الفئة", selectCategory:"ما الذي يصفك؟" },
             category:{ primary:"ابتدائي", middle:"متوسط", "9th":"الصف التاسع", "10th":"الصف العاشر", "11th":"الصف الحادي عشر", "12th":"الصف الثاني عشر", sat:"SAT", act:"ACT", alevels:"A-Levels", ib:"البكالوريا الدولية", university:"الجامعة", graduate:"دراسات عليا", teaching:"التدريس", work:"العمل", other:"أخرى" },
-            common:{ cancel:"إلغاء", save:"حفظ" },
+            common:{ cancel:"إلغاء", save:"حفظ", delete:"حذف" },
+            timetable:{ title:"جدولي الدراسي", addNew:"+ إضافة إلى الجدول", add:"إضافة إلى الجدول", edit:"تعديل الحصة", name:"العنوان", day:"اليوم", start:"وقت البدء", end:"وقت الانتهاء", subject:"المادة", location:"الموقع (اختياري)", deleteConfirm:"إزالة هذا من الجدول؟", days:["الإثنين","الثلاثاء","الأربعاء","الخميس","الجمعة","السبت","الأحد"], daysLong:["الإثنين","الثلاثاء","الأربعاء","الخميس","الجمعة","السبت","الأحد"] },
+            tasks:{ title:"مهامي", addNew:"+ إضافة مهمة جديدة", add:"إضافة مهمة", edit:"تعديل المهمة", name:"عنوان المهمة", subject:"المادة", dueDate:"تاريخ الاستحقاق", noSubject:"بدون مادة", noDate:"بدون تاريخ استحقاق", filterActive:"نشطة", filterAll:"الكل", filterDone:"مكتملة", noTasks:"لا يوجد شيء هنا بعد. أضف مهمة للبدء!", overdue:"متأخرة", today:"اليوم", thisWeek:"هذا الأسبوع", later:"لاحقاً", noDueGroup:"بدون تاريخ استحقاق", added:"تمت إضافة المهمة", updated:"تم تحديث المهمة", deleted:"تم حذف المهمة", deleteConfirm:"حذف هذه المهمة؟" },
+            notes:{ search:"البحث في الملاحظات…", newNote:"ملاحظة جديدة", untitled:"بدون عنوان", empty:"اختر ملاحظة أو أنشئ واحدة جديدة", allSubjects:"جميع المواد", noSubject:"بدون مادة", startWriting:"ابدأ الكتابة بصيغة Markdown…", saved:"تم الحفظ", saving:"جارٍ الحفظ…", noContent:"لا يوجد محتوى بعد", deleteConfirm:"حذف هذه الملاحظة؟ لا يمكن التراجع عن هذا.", deleted:"تم حذف الملاحظة", modeEdit:"تحرير", modeSplit:"تقسيم", modePreview:"معاينة" },
             messages:{ sessionComplete:"اكتملت الجلسة!", subjectAdded:"تمت إضافة المادة", subjectUpdated:"تم تحديث المادة", subjectDeleted:"تم حذف المادة", deleteConfirm:"هل تريد حذف هذه المادة؟", minSession:"دقيقة واحدة على الأقل", selectSubjectFirst:"الرجاء اختيار مادة أولاً" },
             themes:{ default:"افتراضي", darkAcademia:"أكاديمية مظلمة", cottagecore:"ريفي", vaporwave:"فيبورويف", fairycore:"خيالي", cyberpunk:"سايبربانك", nord:"نورد", sunset:"غروب", ocean:"محيط", forest:"غابة", lavender:"خزامى", monochrome:"أحادي", retro90s:"ريترو 90", neubrutalism:"نيوبروتال", glassmorphism:"زجاجي", neumorphism:"نيومورفيك", flat:"مسطح", bento:"بينتو", dreamcore:"دريم كور", cybercore:"سايبر كور", kidcore:"كيد كور", gorpcore:"جورب كور", bauhaus:"باوهاوس", artnouveau:"آرت نوفو", popart:"بوب آرت", brutalism:"بروتاليزم", bratsummer:"صيف برات", mobwife:"موب وايف", cleanical:"سريري", aquatic:"مائي", sixtyseven:"67 ✨" }
         }
@@ -1917,7 +1932,7 @@
         createdAt:new Date(r.created_at).getTime(), updatedAt:new Date(r.updated_at).getTime()
     });
     const mapNoteToDb = (n, userId) => ({
-        id:n.id, user_id:userId, title:n.title || 'Untitled', content:n.content || '',
+        id:n.id, user_id:userId, title:n.title || '', content:n.content || '',
         subject_id:n.subjectId, subject_name:n.subjectName, subject_color:n.subjectColor,
         updated_at:new Date().toISOString()
     });
@@ -2022,6 +2037,27 @@
        UTILITIES
     ==================================================== */
     const genId = () => crypto.randomUUID();
+
+    // Escapes user-supplied text before it's interpolated into innerHTML template strings
+    function escapeHtml(str) {
+        if (str == null) return '';
+        return String(str)
+            .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    }
+
+    // Local calendar date (YYYY-MM-DD) — avoids UTC boundary bugs for non-UTC timezones
+    function localDateStr(d = new Date()) {
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${y}-${m}-${day}`;
+    }
+    // Parses a "YYYY-MM-DD" string as a local date (not UTC) — pairs with localDateStr
+    function parseLocalDate(s) {
+        const [y, m, d] = s.split('-').map(Number);
+        return new Date(y, m - 1, d);
+    }
 
     function fmtTime(s) {
         const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), sec = s % 60;
@@ -2130,6 +2166,10 @@
         renderThemeGrid();
         renderTaskSubjectSelect();
         renderTasks();
+        renderNoteSubjectFilter();
+        renderNotesList();
+        renderTimetableSubjectSelect();
+        renderTimetable();
         updatePhaseBadge();
     }
 
@@ -2200,7 +2240,7 @@
             startTime:    state.sessionStart,
             endTime:      Date.now(),
             duration:     durationSeconds,
-            date:         new Date().toISOString().split('T')[0]
+            date:         localDateStr()
         };
         state.sessions.unshift(session);
         DB.addSession(session);
@@ -2210,7 +2250,34 @@
         return session;
     }
 
+    /* ---- timer persistence: survives accidental refresh/close ---- */
+    const TIMER_STORAGE_KEY = 'studyco_active_timer';
+
+    function saveTimerState() {
+        if (!state.timerRunning || !state.currentSubject) { clearTimerState(); return; }
+        try {
+            localStorage.setItem(TIMER_STORAGE_KEY, JSON.stringify({
+                subjectId: state.currentSubject.id,
+                mode: state.timerMode,
+                pomodoroPhase: state.pomodoroPhase,
+                sessionStart: state.sessionStart,
+                paused: state.timerPaused,
+                pausedSeconds: state.timerPaused ? state.timerSeconds : null
+            }));
+        } catch (e) { /* storage unavailable — non-fatal, resume just won't work */ }
+    }
+    function clearTimerState() {
+        try { localStorage.removeItem(TIMER_STORAGE_KEY); } catch (e) {}
+    }
+    function loadTimerState() {
+        try {
+            const raw = localStorage.getItem(TIMER_STORAGE_KEY);
+            return raw ? JSON.parse(raw) : null;
+        } catch (e) { return null; }
+    }
+
     function resetTimerUI() {
+        clearTimerState();
         state.timerRunning  = false;
         state.timerPaused   = false;
         state.timerSeconds  = 0;
@@ -2251,6 +2318,7 @@
             state.timerSeconds = 0;
             state.sessionStart = Date.now();
             updatePhaseBadge();
+            saveTimerState();
             showToast(session ? `${t('timer.breakStart')} — ${fmtDur(session.duration)} ${session.subjectName}` : t('timer.breakStart'));
         } else {
             clearInterval(state.timerInterval);
@@ -2291,6 +2359,7 @@
 
         updatePhaseBadge();
         document.getElementById('timerDisplay').classList.add('running');
+        saveTimerState();
     }
 
     function togglePause() {
@@ -2317,6 +2386,7 @@
             btn.textContent = t('timer.resume');
             btn.className   = 'btn btn-primary';
         }
+        saveTimerState();
     }
 
     function endSession() {
@@ -2383,7 +2453,7 @@
             card.style.borderLeftColor = s.color;
             card.innerHTML = `
                 <div class="subject-header">
-                    <div class="subject-name">${s.name}</div>
+                    <div class="subject-name">${escapeHtml(s.name)}</div>
                     <div class="subject-actions">
                         <button class="icon-btn" onclick="editSubject('${s.id}')">✏️</button>
                         <button class="icon-btn" onclick="deleteSubject('${s.id}')">🗑️</button>
@@ -2439,7 +2509,18 @@
         if (!confirm(t('messages.deleteConfirm'))) return;
         state.subjects = state.subjects.filter(s => s.id !== id);
         DB.deleteSubject(id);
+
+        // Clear the now-orphaned subject tag from anything that referenced it
+        const clearTag = obj => { obj.subjectId = null; obj.subjectName = null; obj.subjectColor = null; };
+
+        state.tasks.filter(tk => tk.subjectId === id).forEach(tk => { clearTag(tk); DB.setTasks([tk]); });
+        state.notes.filter(n => n.subjectId === id).forEach(n => { clearTag(n); DB.saveNote(n); });
+        state.timetable.filter(e => e.subjectId === id).forEach(e => { clearTag(e); DB.saveTimetableEntry(e); });
+
         renderSubjects(); renderSubjectSelect();
+        renderTaskSubjectSelect(); renderTasks();
+        renderNoteSubjectFilter(); renderNotesList();
+        renderTimetableSubjectSelect(); renderTimetable();
         showToast(t('messages.subjectDeleted'));
     };
 
@@ -2480,12 +2561,12 @@
         if (cur) sel.value = cur;
     }
 
-    function todayISO() { return new Date().toISOString().split('T')[0]; }
+    function todayISO() { return localDateStr(); }
 
     function taskDueGroup(dueDate) {
         if (!dueDate) return 'none';
         const today = todayISO();
-        const weekEnd = new Date(Date.now() + 7*24*60*60*1000).toISOString().split('T')[0];
+        const weekEnd = localDateStr(new Date(Date.now() + 7*24*60*60*1000));
         if (dueDate < today) return 'overdue';
         if (dueDate === today) return 'today';
         if (dueDate <= weekEnd) return 'week';
@@ -2529,7 +2610,7 @@
         item.style.borderLeftColor = tk.subjectColor || 'var(--border-color)';
 
         const subjectChip = tk.subjectName
-            ? `<span class="task-subject-chip" style="background:${tk.subjectColor}">${tk.subjectName}</span>` : '';
+            ? `<span class="task-subject-chip" style="background:${tk.subjectColor}">${escapeHtml(tk.subjectName)}</span>` : '';
         const dueLabel = tk.dueDate
             ? `<span class="task-due${overdue && !tk.completed ? ' overdue' : ''}">📅 ${fmtDate(new Date(tk.dueDate + 'T00:00:00').getTime())}</span>`
             : `<span class="task-due">${t('tasks.noDate')}</span>`;
@@ -2537,7 +2618,7 @@
         item.innerHTML = `
             <button class="task-check${tk.completed ? ' checked' : ''}" data-id="${tk.id}">${tk.completed ? '✓' : ''}</button>
             <div class="task-body">
-                <div class="task-title">${tk.title}</div>
+                <div class="task-title">${escapeHtml(tk.title)}</div>
                 <div class="task-meta">${subjectChip}${dueLabel}</div>
             </div>
             <div class="task-actions">
@@ -2638,7 +2719,7 @@
     function renderNoteSubjectFilter() {
         const sel = document.getElementById('notesSubjectFilter');
         const cur = sel.value;
-        sel.innerHTML = `<option value="">All subjects</option>`;
+        sel.innerHTML = `<option value="">${t('notes.allSubjects')}</option>`;
         state.subjects.forEach(s => {
             const o = document.createElement('option');
             o.value = s.id; o.textContent = s.name;
@@ -2648,7 +2729,7 @@
 
         const editSel = document.getElementById('noteSubjectSelect');
         const editCur = editSel.value;
-        editSel.innerHTML = `<option value="">No subject</option>`;
+        editSel.innerHTML = `<option value="">${t('notes.noSubject')}</option>`;
         state.subjects.forEach(s => {
             const o = document.createElement('option');
             o.value = s.id; o.textContent = s.name;
@@ -2685,7 +2766,7 @@
         notes.sort((a,b) => b.updatedAt - a.updatedAt);
 
         if (!notes.length) {
-            container.innerHTML = `<div class="empty-state" style="padding:30px 10px;"><div class="empty-state-icon">📓</div><p style="font-size:13px;">No notes found</p></div>`;
+            container.innerHTML = `<div class="empty-state" style="padding:30px 10px;"><div class="empty-state-icon">📓</div><p style="font-size:13px;">${t('notes.empty')}</p></div>`;
             return;
         }
 
@@ -2695,9 +2776,9 @@
             item.className = 'note-item' + (n.id === state.currentNoteId ? ' active' : '');
             const subjectDot = n.subjectColor ? `<span class="note-item-subject" style="background:${n.subjectColor}"></span>` : '';
             item.innerHTML = `
-                <div class="note-item-title">${n.title || 'Untitled'}</div>
-                <div class="note-item-meta">${subjectDot}${n.subjectName ? `<span>${n.subjectName}</span> · ` : ''}<span>${fmtRelative(n.updatedAt)}</span></div>
-                <div class="note-item-snippet">${noteSnippet(n.content) || 'No content yet'}</div>`;
+                <div class="note-item-title">${n.title ? escapeHtml(n.title) : t('notes.untitled')}</div>
+                <div class="note-item-meta">${subjectDot}${n.subjectName ? `<span>${escapeHtml(n.subjectName)}</span> · ` : ''}<span>${fmtRelative(n.updatedAt)}</span></div>
+                <div class="note-item-snippet">${escapeHtml(noteSnippet(n.content)) || t('notes.noContent')}</div>`;
             item.addEventListener('click', () => selectNote(n.id));
             container.appendChild(item);
         });
@@ -2714,7 +2795,7 @@
         document.getElementById('noteTitleInput').value = note.title || '';
         document.getElementById('noteSubjectSelect').value = note.subjectId || '';
         document.getElementById('noteContentInput').value = note.content || '';
-        document.getElementById('notesStatus').textContent = 'Saved';
+        document.getElementById('notesStatus').textContent = t('notes.saved');
         renderNotePreview();
         renderNotesList();
     }
@@ -2743,7 +2824,7 @@
     function currentNote() { return state.notes.find(n => n.id === state.currentNoteId); }
 
     function scheduleNoteSave() {
-        document.getElementById('notesStatus').textContent = 'Saving…';
+        document.getElementById('notesStatus').textContent = t('notes.saving');
         if (state.noteSaveTimer) clearTimeout(state.noteSaveTimer);
         state.noteSaveTimer = setTimeout(flushNoteSave, 700);
     }
@@ -2761,7 +2842,7 @@
         note.updatedAt = Date.now();
 
         DB.saveNote(note);
-        document.getElementById('notesStatus').textContent = 'Saved';
+        document.getElementById('notesStatus').textContent = t('notes.saved');
         renderNotesList();
     }
 
@@ -2775,7 +2856,7 @@
     document.getElementById('deleteNoteBtn').addEventListener('click', () => {
         const note = currentNote();
         if (!note) return;
-        if (!confirm('Delete this note? This cannot be undone.')) return;
+        if (!confirm(t('notes.deleteConfirm'))) return;
         if (state.noteSaveTimer) clearTimeout(state.noteSaveTimer);
         state.notes = state.notes.filter(n => n.id !== note.id);
         DB.deleteNote(note.id);
@@ -2783,7 +2864,7 @@
         document.getElementById('notesEditorInner').style.display = 'none';
         document.getElementById('notesEmptyState').style.display = 'flex';
         renderNotesList();
-        showToast('Note deleted');
+        showToast(t('notes.deleted'));
     });
 
     /* --- markdown toolbar --- */
@@ -2826,7 +2907,8 @@
     function renderNotePreview() {
         const raw = document.getElementById('noteContentInput').value;
         try {
-            document.getElementById('notePreview').innerHTML = window.marked ? marked.parse(raw) : raw;
+            const html = window.marked ? marked.parse(raw) : raw;
+            document.getElementById('notePreview').innerHTML = window.DOMPurify ? DOMPurify.sanitize(html) : html;
         } catch (e) {
             document.getElementById('notePreview').textContent = raw;
         }
@@ -2856,7 +2938,8 @@
     const TT_START_HOUR = 7;   // 7 AM
     const TT_END_HOUR   = 22;  // 10 PM
     const TT_SLOTS = (TT_END_HOUR - TT_START_HOUR) * 2; // 30-min slots
-    const TT_DAY_NAMES = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+    function ttDayNames() { return t('timetable.days'); }
+    function ttDayNamesLong() { return t('timetable.daysLong'); }
 
     function timeToSlot(timeStr) {
         const [h, m] = timeStr.split(':').map(Number);
@@ -2866,13 +2949,23 @@
     function renderTimetableSubjectSelect() {
         const sel = document.getElementById('ttSubjectSelect');
         const cur = sel.value;
-        sel.innerHTML = `<option value="">No subject</option>`;
+        sel.innerHTML = `<option value="">${t('tasks.noSubject')}</option>`;
         state.subjects.forEach(s => {
             const o = document.createElement('option');
             o.value = s.id; o.textContent = s.name;
             sel.appendChild(o);
         });
         sel.value = cur;
+
+        const daySel = document.getElementById('ttDay');
+        const curDay = daySel.value;
+        daySel.innerHTML = '';
+        ttDayNamesLong().forEach((name, i) => {
+            const o = document.createElement('option');
+            o.value = i; o.textContent = name;
+            daySel.appendChild(o);
+        });
+        daySel.value = curDay || '0';
     }
 
     function renderTimetable() {
@@ -2886,7 +2979,7 @@
         grid.appendChild(corner);
 
         // day headers
-        TT_DAY_NAMES.forEach((name, i) => {
+        ttDayNames().forEach((name, i) => {
             const h = document.createElement('div');
             h.className = 'tt-day-header';
             h.style.gridColumn = i + 2;
@@ -2927,15 +3020,15 @@
             block.style.gridRow = `${startSlot + 2} / ${endSlot + 2}`;
             block.style.background = entry.subjectColor || 'var(--accent-color)';
             block.innerHTML = `
-                <div class="tt-entry-title">${entry.title}</div>
-                <div class="tt-entry-meta">${entry.startTime}–${entry.endTime}${entry.location ? ' · ' + entry.location : ''}</div>`;
+                <div class="tt-entry-title">${escapeHtml(entry.title)}</div>
+                <div class="tt-entry-meta">${entry.startTime}–${entry.endTime}${entry.location ? ' · ' + escapeHtml(entry.location) : ''}</div>`;
             block.addEventListener('click', () => editTimetableEntry(entry.id));
             grid.appendChild(block);
         });
     }
 
     function showTimetableModal(editing = false) {
-        document.getElementById('timetableModalTitle').textContent = editing ? 'Edit Entry' : t('timetable.add');
+        document.getElementById('timetableModalTitle').textContent = editing ? t('timetable.edit') : t('timetable.add');
         renderTimetableSubjectSelect();
         document.getElementById('ttDeleteBtn').style.display = editing ? 'inline-block' : 'none';
 
@@ -3026,8 +3119,8 @@
     function renderHistory(filter = activeFilter) {
         activeFilter = filter;
         const list = document.getElementById('sessionsList');
-        const today   = new Date().toISOString().split('T')[0];
-        const weekAgo = new Date(Date.now() - 7*24*60*60*1000).toISOString().split('T')[0];
+        const today   = localDateStr();
+        const weekAgo = localDateStr(new Date(Date.now() - 7*24*60*60*1000));
         let sessions  = [...state.sessions];
         if (filter === 'today') sessions = sessions.filter(s => s.date === today);
         if (filter === 'week')  sessions = sessions.filter(s => s.date >= weekAgo);
@@ -3043,7 +3136,7 @@
             item.style.borderLeftColor = s.subjectColor;
             item.innerHTML = `
                 <div class="session-header">
-                    <div class="session-subject">${s.subjectName}</div>
+                    <div class="session-subject">${escapeHtml(s.subjectName)}</div>
                     <div class="session-duration">${fmtDur(s.duration)}</div>
                 </div>
                 <div class="session-meta">
@@ -3068,8 +3161,8 @@
     let chartSubject = null, chartDaily = null;
 
     function renderStatistics() {
-        const today   = new Date().toISOString().split('T')[0];
-        const weekAgo = new Date(Date.now() - 7*24*60*60*1000).toISOString().split('T')[0];
+        const today   = localDateStr();
+        const weekAgo = localDateStr(new Date(Date.now() - 7*24*60*60*1000));
         const todayTotal = state.sessions.filter(s => s.date === today).reduce((a,s) => a+s.duration, 0);
         const weekTotal  = state.sessions.filter(s => s.date >= weekAgo).reduce((a,s) => a+s.duration, 0);
         const allTotal   = state.sessions.reduce((a,s) => a+s.duration, 0);
@@ -3125,7 +3218,7 @@
         if (range === 'daily') {
             for (let i = 6; i >= 0; i--) {
                 const d = new Date(Date.now() - i*86400000);
-                const key = d.toISOString().split('T')[0];
+                const key = localDateStr(d);
                 labels.push(d.toLocaleDateString('en-US',{ weekday:'short' }));
                 dataMap[key] = 0;
             }
@@ -3135,18 +3228,18 @@
             for (let i = 7; i >= 0; i--) {
                 const wStart = new Date(Date.now() - i*7*86400000);
                 const wEnd   = new Date(wStart.getTime() + 6*86400000);
-                const key    = wStart.toISOString().split('T')[0];
+                const key    = localDateStr(wStart);
                 labels.push(`W${8-i}`);
                 dataMap[key] = 0;
                 state.sessions.forEach(s => {
-                    const d = new Date(s.date);
+                    const d = parseLocalDate(s.date);
                     if (d >= wStart && d <= wEnd) dataMap[key] += s.duration;
                 });
             }
         } else {
             const monthly = {};
             state.sessions.forEach(s => {
-                const d = new Date(s.date);
+                const d = parseLocalDate(s.date);
                 const mk = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
                 monthly[mk] = (monthly[mk] || 0) + s.duration;
             });
@@ -3265,6 +3358,62 @@
         }
     }
 
+    function restoreActiveTimer() {
+        const saved = loadTimerState();
+        if (!saved) return;
+
+        const subject = state.subjects.find(s => s.id === saved.subjectId);
+        if (!subject) { clearTimerState(); return; }
+
+        state.currentSubject = subject;
+        state.timerMode = saved.mode;
+        state.pomodoroPhase = saved.pomodoroPhase;
+
+        document.querySelectorAll('.mode-btn').forEach(b => {
+            b.classList.toggle('active', b.dataset.mode === saved.mode);
+            b.disabled = true;
+        });
+
+        if (saved.paused) {
+            state.timerPaused  = true;
+            state.timerRunning = true;
+            state.timerSeconds = saved.pausedSeconds || 0;
+            state.sessionStart = saved.sessionStart;
+        } else {
+            state.timerPaused  = false;
+            state.timerRunning = true;
+            state.sessionStart = saved.sessionStart;
+            state.timerSeconds = Math.max(0, Math.floor((Date.now() - saved.sessionStart) / 1000));
+            state.timerInterval = setInterval(tick, 1000);
+        }
+
+        document.getElementById('startBtn').style.display = 'none';
+        document.getElementById('pauseBtn').style.display = 'inline-block';
+        document.getElementById('endBtn').style.display   = 'inline-block';
+        document.getElementById('subjectSelect').disabled = true;
+        document.getElementById('subjectSelect').value = subject.id;
+
+        const pauseBtn = document.getElementById('pauseBtn');
+        const display = document.getElementById('timerDisplay');
+        if (saved.paused) {
+            pauseBtn.textContent = t('timer.resume'); pauseBtn.className = 'btn btn-primary';
+            display.classList.remove('running');
+        } else {
+            pauseBtn.textContent = t('timer.pause'); pauseBtn.className = 'btn btn-secondary';
+            display.classList.add('running');
+        }
+
+        const badge = document.getElementById('currentSubjectBadge');
+        badge.textContent = subject.name;
+        badge.classList.add('active');
+        badge.style.background = subject.color;
+
+        updatePhaseBadge();
+        updateDisplay();
+        if (state.timerMode === 'pomodoro' && !saved.paused) checkPomodoroPhase();
+        showToast('Resumed your in-progress timer');
+    }
+
     async function boot(userId) {
         currentUserId = userId;
         const data = await DB.loadAll(userId);
@@ -3275,6 +3424,7 @@
         state.notes    = data.notes;
         state.timetable = data.timetable;
         init();
+        restoreActiveTimer();
         document.getElementById('authScreen').style.display = 'none';
         const overlay = document.getElementById('loadingOverlay');
         if (overlay) overlay.classList.add('hidden');
