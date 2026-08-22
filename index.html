@@ -947,6 +947,37 @@
             .notes-sidebar { width: 100%; border-right: none; border-bottom: 1px solid var(--border-color); max-height: 260px; }
             .notes-editor { min-height: 420px; }
         }
+
+        /* ==== TIMETABLE ==== */
+        .timetable-scroll { overflow-x: auto; }
+        .timetable-grid {
+            display: grid;
+            grid-template-columns: 56px repeat(7, minmax(108px, 1fr));
+            grid-auto-rows: 22px;
+            min-width: 840px;
+            position: relative;
+        }
+        .tt-day-header {
+            grid-row: 1; position: sticky; top: 0; z-index: 3;
+            background: var(--bg-secondary); padding: 10px 4px; text-align: center;
+            font-size: 12px; font-weight: 700; color: var(--text-secondary);
+            border-bottom: 2px solid var(--border-color);
+        }
+        .tt-corner { grid-row: 1; grid-column: 1; background: var(--bg-secondary); position: sticky; top: 0; left: 0; z-index: 4; border-bottom: 2px solid var(--border-color); }
+        .tt-time-label {
+            grid-column: 1; font-size: 10px; color: var(--text-tertiary);
+            text-align: right; padding-right: 6px; transform: translateY(-6px);
+        }
+        .tt-slot { border-right: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color); }
+        .tt-slot.hour-line { border-bottom: 1px solid var(--border-color); }
+        .tt-entry {
+            border-radius: 6px; padding: 4px 6px; margin: 1px; overflow: hidden;
+            cursor: pointer; color: #fff; font-size: 11px; line-height: 1.3;
+            display: flex; flex-direction: column; z-index: 2; transition: var(--transition);
+        }
+        .tt-entry:hover { filter: brightness(1.1); transform: scale(1.01); }
+        .tt-entry-title { font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .tt-entry-meta { font-size: 10px; opacity: .9; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .subject-badge {
             display: inline-block;
             padding: 8px 20px;
@@ -1338,6 +1369,10 @@
                 <div class="nav-icon">📓</div>
                 <div class="nav-label" data-i18n="nav.notes">Notes</div>
             </div>
+            <div class="nav-item" data-view="timetable">
+                <div class="nav-icon">🗓️</div>
+                <div class="nav-label" data-i18n="nav.timetable">Timetable</div>
+            </div>
             <div class="nav-item active" data-view="timer">
                 <div class="nav-icon">⏱️</div>
                 <div class="nav-label" data-i18n="nav.timer">Timer</div>
@@ -1444,6 +1479,19 @@
                             </div>
                             <div class="notes-status" id="notesStatus">Saved</div>
                         </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TIMETABLE -->
+            <div class="view" id="timetableView">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title" data-i18n="timetable.title">My Timetable</h2>
+                        <button class="add-subject-btn" id="addTimetableBtn" style="width:auto;padding:10px 18px;margin:0;" data-i18n="timetable.addNew">+ Add to Timetable</button>
+                    </div>
+                    <div class="timetable-scroll">
+                        <div class="timetable-grid" id="timetableGrid"></div>
                     </div>
                 </div>
             </div>
@@ -1634,20 +1682,69 @@
         </div>
     </div>
 
+    <!-- TIMETABLE ENTRY MODAL -->
+    <div class="modal" id="timetableModal">
+        <div class="modal-content">
+            <h3 class="modal-header" id="timetableModalTitle" data-i18n="timetable.add">Add to Timetable</h3>
+            <form id="timetableForm">
+                <div class="form-group">
+                    <label class="form-label" data-i18n="timetable.name">Title</label>
+                    <input type="text" class="form-input" id="ttTitle" placeholder="e.g., Calculus 101 or Gym" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" data-i18n="timetable.day">Day</label>
+                    <select class="form-select" id="ttDay">
+                        <option value="0">Monday</option>
+                        <option value="1">Tuesday</option>
+                        <option value="2">Wednesday</option>
+                        <option value="3">Thursday</option>
+                        <option value="4">Friday</option>
+                        <option value="5">Saturday</option>
+                        <option value="6">Sunday</option>
+                    </select>
+                </div>
+                <div class="form-group" style="display:flex;gap:12px;">
+                    <div style="flex:1;">
+                        <label class="form-label" data-i18n="timetable.start">Start Time</label>
+                        <input type="time" class="form-input" id="ttStart" value="09:00" required>
+                    </div>
+                    <div style="flex:1;">
+                        <label class="form-label" data-i18n="timetable.end">End Time</label>
+                        <input type="time" class="form-input" id="ttEnd" value="10:00" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" data-i18n="timetable.subject">Subject</label>
+                    <select class="form-select" id="ttSubjectSelect"></select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" data-i18n="timetable.location">Location (optional)</label>
+                    <input type="text" class="form-input" id="ttLocation" placeholder="e.g., Room 204">
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-danger" id="ttDeleteBtn" style="display:none;margin-right:auto;" data-i18n="common.delete">Delete</button>
+                    <button type="button" class="btn btn-secondary" id="ttCancelBtn" data-i18n="common.cancel">Cancel</button>
+                    <button type="submit" class="btn btn-primary"   id="ttSaveBtn"   data-i18n="common.save">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
     /* ====================================================
        TRANSLATIONS
     ==================================================== */
     const translations = {
         en: {
-            nav:{ timer:"Timer", subjects:"Subjects", history:"History", stats:"Stats", tasks:"Tasks", notes:"Notes" },
+            nav:{ timer:"Timer", subjects:"Subjects", history:"History", stats:"Stats", tasks:"Tasks", notes:"Notes", timetable:"Timetable" },
             timer:{ noSubject:"No subject selected", start:"Start", pause:"Pause", resume:"Resume", end:"End Session", selectSubject:"Select a subject", stopwatch:"Stopwatch", pomodoro:"Pomodoro", workPhase:"Focus", breakPhase:"Break", breakStart:"Focus session logged — break time!", pomodoroComplete:"Pomodoro cycle complete!" },
             subjects:{ title:"My Subjects", addNew:"+ Add New Subject", add:"Add Subject", edit:"Edit Subject", name:"Subject Name", color:"Color", noSubjects:"No subjects yet. Add your first subject to get started!" },
             history:{ title:"Study History", all:"All", today:"Today", week:"This Week", noSessions:"No study sessions yet" },
             stats:{ today:"Today", week:"This Week", allTime:"All Time", subjectDist:"Subject Distribution", dailyStudy:"Study Time", daily:"Daily (7 days)", weekly:"Weekly (8 weeks)", allTimeChart:"All Time", noData:"No data yet" },
             settings:{ title:"Settings", theme:"Theme", selectTheme:"Choose your aesthetic", language:"Language", selectLanguage:"Select your language", category:"Category", selectCategory:"What best describes you?", pomodoro:"Pomodoro Durations", workMin:"Focus length (minutes)", breakMin:"Break length (minutes)" },
             category:{ primary:"Primary School", middle:"Middle School", "9th":"9th Grade", "10th":"10th Grade", "11th":"11th Grade", "12th":"12th Grade", sat:"SAT Preparation", act:"ACT Preparation", alevels:"A-Levels", ib:"International Baccalaureate", university:"University", graduate:"Graduate School", teaching:"Teaching", work:"Work/Professional", other:"Other" },
-            common:{ cancel:"Cancel", save:"Save" },
+            common:{ cancel:"Cancel", save:"Save", delete:"Delete" },
+            timetable:{ title:"My Timetable", addNew:"+ Add to Timetable", add:"Add to Timetable", edit:"Edit Entry", name:"Title", day:"Day", start:"Start Time", end:"End Time", subject:"Subject", location:"Location (optional)", deleteConfirm:"Remove this from your timetable?" },
             tasks:{ title:"My Tasks", addNew:"+ Add New Task", add:"Add Task", edit:"Edit Task", name:"Task Title", subject:"Subject", dueDate:"Due Date", noSubject:"No subject", noDate:"No due date", filterActive:"Active", filterAll:"All", filterDone:"Completed", noTasks:"Nothing here yet. Add a task to get started!", overdue:"Overdue", today:"Today", thisWeek:"This Week", later:"Later", noDueGroup:"No Due Date", added:"Task added", updated:"Task updated", deleted:"Task deleted", deleteConfirm:"Delete this task?" },
             messages:{ sessionComplete:"Session completed!", subjectAdded:"Subject added", subjectUpdated:"Subject updated", subjectDeleted:"Subject deleted", deleteConfirm:"Are you sure you want to delete this subject?", minSession:"Session must be at least 1 minute", selectSubjectFirst:"Please select a subject first" },
             themes:{ default:"Default", darkAcademia:"Dark Academia", cottagecore:"Cottagecore", vaporwave:"Vaporwave", fairycore:"Fairycore", cyberpunk:"Cyberpunk", nord:"Nord", sunset:"Sunset", ocean:"Ocean", forest:"Forest", lavender:"Lavender", monochrome:"Monochrome", retro90s:"Retro 90s", neubrutalism:"Neubrutalism", glassmorphism:"Glassmorphism", neumorphism:"Neumorphism", flat:"Flat Design", bento:"Bento Grid", dreamcore:"Dreamcore", cybercore:"Cybercore", kidcore:"Kidcore", gorpcore:"Gorpcore", bauhaus:"Bauhaus", artnouveau:"Art Nouveau", popart:"Pop Art", brutalism:"Brutalism", bratsummer:"Brat Summer", mobwife:"Mob Wife", cleanical:"Cleanical", aquatic:"Aquatic", sixtyseven:"67 ✨" }
@@ -1825,6 +1922,15 @@
         updated_at:new Date().toISOString()
     });
 
+    const mapTimetableFromDb = r => ({
+        id:r.id, dayOfWeek:r.day_of_week, startTime:r.start_time.slice(0,5), endTime:r.end_time.slice(0,5),
+        title:r.title, location:r.location, subjectId:r.subject_id, subjectName:r.subject_name, subjectColor:r.subject_color
+    });
+    const mapTimetableToDb = (e, userId) => ({
+        id:e.id, user_id:userId, day_of_week:e.dayOfWeek, start_time:e.startTime, end_time:e.endTime,
+        title:e.title, location:e.location || null, subject_id:e.subjectId, subject_name:e.subjectName, subject_color:e.subjectColor
+    });
+
     const mapSettingsFromDb = r => r ? {
         darkMode:r.dark_mode, language:r.language, category:r.category,
         themeStyle:r.theme_style, pomodoroWork:r.pomodoro_work, pomodoroBreak:r.pomodoro_break
@@ -1836,11 +1942,12 @@
 
     const DB = {
         async loadAll(userId) {
-            const [subjectsRes, sessionsRes, tasksRes, notesRes, settingsRes] = await Promise.all([
+            const [subjectsRes, sessionsRes, tasksRes, notesRes, timetableRes, settingsRes] = await Promise.all([
                 sb.from('subjects').select('*').eq('user_id', userId).order('created_at'),
                 sb.from('sessions').select('*').eq('user_id', userId).order('start_time', { ascending:false }),
                 sb.from('tasks').select('*').eq('user_id', userId).order('created_at'),
                 sb.from('notes').select('*').eq('user_id', userId).order('updated_at', { ascending:false }),
+                sb.from('timetable_entries').select('*').eq('user_id', userId),
                 sb.from('user_settings').select('*').eq('user_id', userId)
             ]);
             let settingsRow = settingsRes.data && settingsRes.data[0];
@@ -1849,11 +1956,12 @@
                 settingsRow = ins.data && ins.data[0];
             }
             return {
-                subjects: (subjectsRes.data || []).map(mapSubjectFromDb),
-                sessions: (sessionsRes.data || []).map(mapSessionFromDb),
-                tasks:    (tasksRes.data || []).map(mapTaskFromDb),
-                notes:    (notesRes.data || []).map(mapNoteFromDb),
-                settings: mapSettingsFromDb(settingsRow)
+                subjects:  (subjectsRes.data || []).map(mapSubjectFromDb),
+                sessions:  (sessionsRes.data || []).map(mapSessionFromDb),
+                tasks:     (tasksRes.data || []).map(mapTaskFromDb),
+                notes:     (notesRes.data || []).map(mapNoteFromDb),
+                timetable: (timetableRes.data || []).map(mapTimetableFromDb),
+                settings:  mapSettingsFromDb(settingsRow)
             };
         },
 
@@ -1898,6 +2006,15 @@
         async deleteNote(id) {
             const { error } = await sb.from('notes').delete().eq('id', id);
             if (error) console.error('note delete error', error);
+        },
+        async saveTimetableEntry(entry) {
+            if (!currentUserId) return;
+            const { error } = await sb.from('timetable_entries').upsert(mapTimetableToDb(entry, currentUserId), { onConflict:'id' });
+            if (error) console.error('timetable upsert error', error);
+        },
+        async deleteTimetableEntry(id) {
+            const { error } = await sb.from('timetable_entries').delete().eq('id', id);
+            if (error) console.error('timetable delete error', error);
         }
     };
 
@@ -1964,7 +2081,9 @@
         notesSearch: '',
         notesSubjectFilter: '',
         noteViewMode: 'edit',
-        noteSaveTimer: null
+        noteSaveTimer: null,
+        timetable: [],
+        editingTimetableEntry: null
     };
 
     const COLORS = [
@@ -2025,6 +2144,7 @@
         if (name === 'statistics') renderStatistics();
         if (name === 'tasks')      renderTasks();
         if (name === 'notes')      { renderNoteSubjectFilter(); renderNotesList(); }
+        if (name === 'timetable')  renderTimetable();
     }
 
     document.querySelectorAll('.nav-item').forEach(item => {
@@ -2731,6 +2851,174 @@
     });
 
     /* ====================================================
+       TIMETABLE
+    ==================================================== */
+    const TT_START_HOUR = 7;   // 7 AM
+    const TT_END_HOUR   = 22;  // 10 PM
+    const TT_SLOTS = (TT_END_HOUR - TT_START_HOUR) * 2; // 30-min slots
+    const TT_DAY_NAMES = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+
+    function timeToSlot(timeStr) {
+        const [h, m] = timeStr.split(':').map(Number);
+        return (h - TT_START_HOUR) * 2 + (m >= 30 ? 1 : 0);
+    }
+
+    function renderTimetableSubjectSelect() {
+        const sel = document.getElementById('ttSubjectSelect');
+        const cur = sel.value;
+        sel.innerHTML = `<option value="">No subject</option>`;
+        state.subjects.forEach(s => {
+            const o = document.createElement('option');
+            o.value = s.id; o.textContent = s.name;
+            sel.appendChild(o);
+        });
+        sel.value = cur;
+    }
+
+    function renderTimetable() {
+        const grid = document.getElementById('timetableGrid');
+        grid.style.gridTemplateRows = `32px repeat(${TT_SLOTS}, 22px)`;
+        grid.innerHTML = '';
+
+        // corner cell
+        const corner = document.createElement('div');
+        corner.className = 'tt-corner';
+        grid.appendChild(corner);
+
+        // day headers
+        TT_DAY_NAMES.forEach((name, i) => {
+            const h = document.createElement('div');
+            h.className = 'tt-day-header';
+            h.style.gridColumn = i + 2;
+            h.textContent = name;
+            grid.appendChild(h);
+        });
+
+        // time labels + background slot lines
+        for (let slot = 0; slot < TT_SLOTS; slot++) {
+            const isHour = slot % 2 === 0;
+            if (isHour) {
+                const label = document.createElement('div');
+                label.className = 'tt-time-label';
+                label.style.gridRow = slot + 2;
+                const hour = TT_START_HOUR + slot / 2;
+                const displayHour = hour % 12 === 0 ? 12 : hour % 12;
+                label.textContent = `${displayHour} ${hour < 12 || hour === 24 ? 'AM' : 'PM'}`;
+                grid.appendChild(label);
+            }
+            for (let day = 0; day < 7; day++) {
+                const cell = document.createElement('div');
+                cell.className = 'tt-slot';
+                cell.style.gridColumn = day + 2;
+                cell.style.gridRow = slot + 2;
+                grid.appendChild(cell);
+            }
+        }
+
+        // entries
+        state.timetable.forEach(entry => {
+            const startSlot = timeToSlot(entry.startTime);
+            const endSlot = timeToSlot(entry.endTime);
+            if (startSlot < 0 || endSlot > TT_SLOTS || endSlot <= startSlot) return;
+
+            const block = document.createElement('div');
+            block.className = 'tt-entry';
+            block.style.gridColumn = entry.dayOfWeek + 2;
+            block.style.gridRow = `${startSlot + 2} / ${endSlot + 2}`;
+            block.style.background = entry.subjectColor || 'var(--accent-color)';
+            block.innerHTML = `
+                <div class="tt-entry-title">${entry.title}</div>
+                <div class="tt-entry-meta">${entry.startTime}–${entry.endTime}${entry.location ? ' · ' + entry.location : ''}</div>`;
+            block.addEventListener('click', () => editTimetableEntry(entry.id));
+            grid.appendChild(block);
+        });
+    }
+
+    function showTimetableModal(editing = false) {
+        document.getElementById('timetableModalTitle').textContent = editing ? 'Edit Entry' : t('timetable.add');
+        renderTimetableSubjectSelect();
+        document.getElementById('ttDeleteBtn').style.display = editing ? 'inline-block' : 'none';
+
+        if (editing && state.editingTimetableEntry) {
+            const e = state.editingTimetableEntry;
+            document.getElementById('ttTitle').value = e.title;
+            document.getElementById('ttDay').value = e.dayOfWeek;
+            document.getElementById('ttStart').value = e.startTime;
+            document.getElementById('ttEnd').value = e.endTime;
+            document.getElementById('ttSubjectSelect').value = e.subjectId || '';
+            document.getElementById('ttLocation').value = e.location || '';
+        } else {
+            document.getElementById('ttTitle').value = '';
+            document.getElementById('ttDay').value = '0';
+            document.getElementById('ttStart').value = '09:00';
+            document.getElementById('ttEnd').value = '10:00';
+            document.getElementById('ttSubjectSelect').value = '';
+            document.getElementById('ttLocation').value = '';
+        }
+        document.getElementById('timetableModal').classList.add('active');
+    }
+    function hideTimetableModal() {
+        document.getElementById('timetableModal').classList.remove('active');
+        state.editingTimetableEntry = null;
+    }
+
+    window.editTimetableEntry = id => {
+        state.editingTimetableEntry = state.timetable.find(e => e.id === id);
+        showTimetableModal(true);
+    };
+
+    document.getElementById('addTimetableBtn').addEventListener('click', () => showTimetableModal());
+    document.getElementById('ttCancelBtn').addEventListener('click', hideTimetableModal);
+
+    document.getElementById('ttDeleteBtn').addEventListener('click', () => {
+        if (!state.editingTimetableEntry) return;
+        if (!confirm(t('timetable.deleteConfirm'))) return;
+        const id = state.editingTimetableEntry.id;
+        state.timetable = state.timetable.filter(e => e.id !== id);
+        DB.deleteTimetableEntry(id);
+        renderTimetable();
+        hideTimetableModal();
+        showToast('Removed from timetable');
+    });
+
+    document.getElementById('timetableForm').addEventListener('submit', e => {
+        e.preventDefault();
+        const title = document.getElementById('ttTitle').value.trim();
+        if (!title) return;
+        const dayOfWeek = parseInt(document.getElementById('ttDay').value, 10);
+        const startTime = document.getElementById('ttStart').value;
+        const endTime = document.getElementById('ttEnd').value;
+        if (endTime <= startTime) { alert('End time must be after start time.'); return; }
+
+        const subjectId = document.getElementById('ttSubjectSelect').value;
+        const subject = state.subjects.find(s => s.id === subjectId);
+        const location = document.getElementById('ttLocation').value.trim();
+
+        let entry;
+        if (state.editingTimetableEntry) {
+            entry = state.editingTimetableEntry;
+            Object.assign(entry, {
+                title, dayOfWeek, startTime, endTime, location,
+                subjectId: subject ? subject.id : null,
+                subjectName: subject ? subject.name : null,
+                subjectColor: subject ? subject.color : null
+            });
+        } else {
+            entry = {
+                id: genId(), title, dayOfWeek, startTime, endTime, location,
+                subjectId: subject ? subject.id : null,
+                subjectName: subject ? subject.name : null,
+                subjectColor: subject ? subject.color : null
+            };
+            state.timetable.push(entry);
+        }
+        DB.saveTimetableEntry(entry);
+        renderTimetable();
+        showToast(state.editingTimetableEntry ? 'Timetable entry updated' : 'Added to timetable');
+        hideTimetableModal();
+    });
+
+    /* ====================================================
        HISTORY
     ==================================================== */
     let activeFilter = 'all';
@@ -2959,6 +3247,8 @@
         renderTasks();
         renderNoteSubjectFilter();
         renderNotesList();
+        renderTimetableSubjectSelect();
+        renderTimetable();
 
         if (!state.subjects.length) {
             state.subjects = [
@@ -2971,6 +3261,7 @@
             renderTaskSubjectSelect();
             renderSubjects();
             renderNoteSubjectFilter();
+            renderTimetableSubjectSelect();
         }
     }
 
@@ -2982,6 +3273,7 @@
         state.settings = data.settings;
         state.tasks    = data.tasks;
         state.notes    = data.notes;
+        state.timetable = data.timetable;
         init();
         document.getElementById('authScreen').style.display = 'none';
         const overlay = document.getElementById('loadingOverlay');
