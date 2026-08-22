@@ -9,6 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked@12.0.0/marked.min.js"></script>
     <style>
         /* ============================
            BASE / RESET
@@ -868,6 +869,84 @@
         .task-due { font-weight: 500; }
         .task-due.overdue { color: var(--danger); }
         .task-actions { display: flex; gap: 4px; flex-shrink: 0; }
+
+        /* ==== NOTES ==== */
+        .notes-layout {
+            display: flex; gap: 0; height: calc(100vh - 220px); min-height: 480px;
+            background: var(--bg-secondary); border-radius: var(--radius-lg);
+            overflow: hidden; box-shadow: var(--shadow-sm);
+        }
+        .notes-sidebar {
+            width: 280px; flex-shrink: 0; border-right: 1px solid var(--border-color);
+            display: flex; flex-direction: column; padding: 16px;
+        }
+        .notes-sidebar-header { display: flex; gap: 8px; margin-bottom: 10px; }
+        .notes-sidebar-header .form-input { flex: 1; }
+        .notes-new-btn { flex-shrink: 0; padding: 0 16px; font-size: 18px; line-height: 1; }
+        .notes-list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; }
+        .note-item {
+            padding: 10px 12px; border-radius: var(--radius-md); cursor: pointer;
+            border-left: 3px solid transparent; transition: var(--transition);
+        }
+        .note-item:hover { background: var(--bg-tertiary); }
+        .note-item.active { background: var(--bg-tertiary); border-left-color: var(--accent-color); }
+        .note-item-title { font-weight: 600; font-size: 14px; margin-bottom: 3px;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .note-item-meta { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--text-tertiary); }
+        .note-item-subject { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+        .note-item-snippet { font-size: 12px; color: var(--text-tertiary); margin-top: 3px;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+        .notes-editor { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+        .notes-empty {
+            flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+            color: var(--text-tertiary); gap: 8px;
+        }
+        .notes-editor-inner { flex: 1; display: flex; flex-direction: column; min-height: 0; }
+        .notes-editor-top { display: flex; align-items: center; gap: 10px; padding: 14px 18px; border-bottom: 1px solid var(--border-color); }
+        .notes-title-input {
+            flex: 1; border: none; background: transparent; font-family: inherit;
+            font-size: 20px; font-weight: 700; color: var(--text-primary); outline: none;
+        }
+        .notes-subject-select { max-width: 160px; flex-shrink: 0; }
+        .notes-toolbar { display: flex; align-items: center; gap: 4px; padding: 8px 14px; border-bottom: 1px solid var(--border-color); flex-wrap: wrap; }
+        .md-btn {
+            border: none; background: transparent; color: var(--text-secondary); cursor: pointer;
+            width: 30px; height: 30px; border-radius: var(--radius-sm); font-size: 13px; font-family: inherit;
+            display: flex; align-items: center; justify-content: center; transition: var(--transition);
+        }
+        .md-btn:hover { background: var(--bg-tertiary); color: var(--text-primary); }
+        .notes-toolbar-spacer { flex: 1; }
+        .notes-view-toggle { display: flex; background: var(--bg-tertiary); border-radius: var(--radius-md); padding: 3px; }
+        .mv-btn {
+            border: none; background: transparent; cursor: pointer; padding: 5px 12px;
+            border-radius: var(--radius-sm); font-family: inherit; font-size: 12px; font-weight: 600;
+            color: var(--text-secondary); transition: var(--transition);
+        }
+        .mv-btn.active { background: var(--accent-color); color: #fff; }
+        .notes-body { flex: 1; display: flex; min-height: 0; }
+        .notes-textarea {
+            flex: 1; border: none; outline: none; resize: none; background: transparent;
+            color: var(--text-primary); font-family: 'SF Mono', Consolas, monospace; font-size: 14px;
+            line-height: 1.7; padding: 18px; min-width: 0;
+        }
+        .notes-preview {
+            flex: 1; overflow-y: auto; padding: 18px; line-height: 1.7; min-width: 0;
+            border-left: 1px solid var(--border-color); display: none;
+        }
+        .notes-preview h1, .notes-preview h2, .notes-preview h3 { margin: 16px 0 8px; }
+        .notes-preview p { margin-bottom: 10px; }
+        .notes-preview ul, .notes-preview ol { margin: 0 0 10px 22px; }
+        .notes-preview code { background: var(--bg-tertiary); padding: 2px 6px; border-radius: 4px; font-size: 13px; }
+        .notes-preview pre { background: var(--bg-tertiary); padding: 12px; border-radius: var(--radius-md); overflow-x: auto; margin-bottom: 10px; }
+        .notes-preview a { color: var(--accent-color); }
+        .notes-status { padding: 8px 18px; font-size: 12px; color: var(--text-tertiary); border-top: 1px solid var(--border-color); }
+
+        @media (max-width: 720px) {
+            .notes-layout { flex-direction: column; height: auto; }
+            .notes-sidebar { width: 100%; border-right: none; border-bottom: 1px solid var(--border-color); max-height: 260px; }
+            .notes-editor { min-height: 420px; }
+        }
         .subject-badge {
             display: inline-block;
             padding: 8px 20px;
@@ -1255,6 +1334,10 @@
                 <div class="nav-icon">✅</div>
                 <div class="nav-label" data-i18n="nav.tasks">Tasks</div>
             </div>
+            <div class="nav-item" data-view="notes">
+                <div class="nav-icon">📓</div>
+                <div class="nav-label" data-i18n="nav.notes">Notes</div>
+            </div>
             <div class="nav-item active" data-view="timer">
                 <div class="nav-icon">⏱️</div>
                 <div class="nav-label" data-i18n="nav.timer">Timer</div>
@@ -1313,6 +1396,55 @@
                     </div>
                     <div id="taskGroups"></div>
                     <button class="add-subject-btn" id="addTaskBtn" data-i18n="tasks.addNew">+ Add New Task</button>
+                </div>
+            </div>
+
+            <!-- NOTES -->
+            <div class="view" id="notesView">
+                <div class="notes-layout">
+                    <div class="notes-sidebar">
+                        <div class="notes-sidebar-header">
+                            <input type="text" class="form-input" id="notesSearch" placeholder="Search notes…">
+                            <button class="btn btn-primary notes-new-btn" id="newNoteBtn" title="New note">+</button>
+                        </div>
+                        <select class="form-select" id="notesSubjectFilter" style="margin-bottom:10px;">
+                            <option value="">All subjects</option>
+                        </select>
+                        <div id="notesList" class="notes-list"></div>
+                    </div>
+                    <div class="notes-editor" id="notesEditor">
+                        <div class="notes-empty" id="notesEmptyState">
+                            <div class="empty-state-icon">📓</div>
+                            <p>Select a note or create a new one</p>
+                        </div>
+                        <div class="notes-editor-inner" id="notesEditorInner" style="display:none">
+                            <div class="notes-editor-top">
+                                <input type="text" class="notes-title-input" id="noteTitleInput" placeholder="Untitled">
+                                <select class="form-select notes-subject-select" id="noteSubjectSelect"></select>
+                                <button class="icon-btn" id="deleteNoteBtn" title="Delete note">🗑️</button>
+                            </div>
+                            <div class="notes-toolbar" id="notesToolbar">
+                                <button type="button" class="md-btn" data-md="bold" title="Bold"><b>B</b></button>
+                                <button type="button" class="md-btn" data-md="italic" title="Italic"><i>I</i></button>
+                                <button type="button" class="md-btn" data-md="h2" title="Heading">H</button>
+                                <button type="button" class="md-btn" data-md="ul" title="Bulleted list">•</button>
+                                <button type="button" class="md-btn" data-md="ol" title="Numbered list">1.</button>
+                                <button type="button" class="md-btn" data-md="link" title="Link">🔗</button>
+                                <button type="button" class="md-btn" data-md="code" title="Code">&lt;/&gt;</button>
+                                <div class="notes-toolbar-spacer"></div>
+                                <div class="notes-view-toggle" id="notesViewToggle">
+                                    <button type="button" class="mv-btn active" data-mode="edit">Edit</button>
+                                    <button type="button" class="mv-btn" data-mode="split">Split</button>
+                                    <button type="button" class="mv-btn" data-mode="preview">Preview</button>
+                                </div>
+                            </div>
+                            <div class="notes-body" id="notesBody">
+                                <textarea class="notes-textarea" id="noteContentInput" placeholder="Start writing in Markdown…"></textarea>
+                                <div class="notes-preview" id="notePreview"></div>
+                            </div>
+                            <div class="notes-status" id="notesStatus">Saved</div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -1508,7 +1640,7 @@
     ==================================================== */
     const translations = {
         en: {
-            nav:{ timer:"Timer", subjects:"Subjects", history:"History", stats:"Stats", tasks:"Tasks" },
+            nav:{ timer:"Timer", subjects:"Subjects", history:"History", stats:"Stats", tasks:"Tasks", notes:"Notes" },
             timer:{ noSubject:"No subject selected", start:"Start", pause:"Pause", resume:"Resume", end:"End Session", selectSubject:"Select a subject", stopwatch:"Stopwatch", pomodoro:"Pomodoro", workPhase:"Focus", breakPhase:"Break", breakStart:"Focus session logged — break time!", pomodoroComplete:"Pomodoro cycle complete!" },
             subjects:{ title:"My Subjects", addNew:"+ Add New Subject", add:"Add Subject", edit:"Edit Subject", name:"Subject Name", color:"Color", noSubjects:"No subjects yet. Add your first subject to get started!" },
             history:{ title:"Study History", all:"All", today:"Today", week:"This Week", noSessions:"No study sessions yet" },
@@ -1682,6 +1814,17 @@
         subject_color:tk.subjectColor, due_date:tk.dueDate, completed:tk.completed
     });
 
+    const mapNoteFromDb = r => ({
+        id:r.id, title:r.title, content:r.content, subjectId:r.subject_id,
+        subjectName:r.subject_name, subjectColor:r.subject_color,
+        createdAt:new Date(r.created_at).getTime(), updatedAt:new Date(r.updated_at).getTime()
+    });
+    const mapNoteToDb = (n, userId) => ({
+        id:n.id, user_id:userId, title:n.title || 'Untitled', content:n.content || '',
+        subject_id:n.subjectId, subject_name:n.subjectName, subject_color:n.subjectColor,
+        updated_at:new Date().toISOString()
+    });
+
     const mapSettingsFromDb = r => r ? {
         darkMode:r.dark_mode, language:r.language, category:r.category,
         themeStyle:r.theme_style, pomodoroWork:r.pomodoro_work, pomodoroBreak:r.pomodoro_break
@@ -1693,10 +1836,11 @@
 
     const DB = {
         async loadAll(userId) {
-            const [subjectsRes, sessionsRes, tasksRes, settingsRes] = await Promise.all([
+            const [subjectsRes, sessionsRes, tasksRes, notesRes, settingsRes] = await Promise.all([
                 sb.from('subjects').select('*').eq('user_id', userId).order('created_at'),
                 sb.from('sessions').select('*').eq('user_id', userId).order('start_time', { ascending:false }),
                 sb.from('tasks').select('*').eq('user_id', userId).order('created_at'),
+                sb.from('notes').select('*').eq('user_id', userId).order('updated_at', { ascending:false }),
                 sb.from('user_settings').select('*').eq('user_id', userId)
             ]);
             let settingsRow = settingsRes.data && settingsRes.data[0];
@@ -1708,6 +1852,7 @@
                 subjects: (subjectsRes.data || []).map(mapSubjectFromDb),
                 sessions: (sessionsRes.data || []).map(mapSessionFromDb),
                 tasks:    (tasksRes.data || []).map(mapTaskFromDb),
+                notes:    (notesRes.data || []).map(mapNoteFromDb),
                 settings: mapSettingsFromDb(settingsRow)
             };
         },
@@ -1744,6 +1889,15 @@
         async deleteTask(id) {
             const { error } = await sb.from('tasks').delete().eq('id', id);
             if (error) console.error('task delete error', error);
+        },
+        async saveNote(note) {
+            if (!currentUserId) return;
+            const { error } = await sb.from('notes').upsert(mapNoteToDb(note, currentUserId), { onConflict:'id' });
+            if (error) console.error('note upsert error', error);
+        },
+        async deleteNote(id) {
+            const { error } = await sb.from('notes').delete().eq('id', id);
+            if (error) console.error('note delete error', error);
         }
     };
 
@@ -1804,7 +1958,13 @@
         selectedColor:  '#6366f1',
         selectedTaskSubject: '',
         chartTimeRange: 'daily',
-        taskFilter: 'active'
+        taskFilter: 'active',
+        notes: [],
+        currentNoteId: null,
+        notesSearch: '',
+        notesSubjectFilter: '',
+        noteViewMode: 'edit',
+        noteSaveTimer: null
     };
 
     const COLORS = [
@@ -1864,6 +2024,7 @@
         if (name === 'history')    renderHistory();
         if (name === 'statistics') renderStatistics();
         if (name === 'tasks')      renderTasks();
+        if (name === 'notes')      { renderNoteSubjectFilter(); renderNotesList(); }
     }
 
     document.querySelectorAll('.nav-item').forEach(item => {
@@ -2352,6 +2513,224 @@
     });
 
     /* ====================================================
+       NOTES
+    ==================================================== */
+    function renderNoteSubjectFilter() {
+        const sel = document.getElementById('notesSubjectFilter');
+        const cur = sel.value;
+        sel.innerHTML = `<option value="">All subjects</option>`;
+        state.subjects.forEach(s => {
+            const o = document.createElement('option');
+            o.value = s.id; o.textContent = s.name;
+            sel.appendChild(o);
+        });
+        sel.value = cur;
+
+        const editSel = document.getElementById('noteSubjectSelect');
+        const editCur = editSel.value;
+        editSel.innerHTML = `<option value="">No subject</option>`;
+        state.subjects.forEach(s => {
+            const o = document.createElement('option');
+            o.value = s.id; o.textContent = s.name;
+            editSel.appendChild(o);
+        });
+        editSel.value = editCur;
+    }
+
+    function noteSnippet(content) {
+        const plain = (content || '').replace(/[#*`_>\-\[\]!]/g, '').replace(/\n+/g, ' ').trim();
+        return plain.slice(0, 80);
+    }
+
+    function fmtRelative(ts) {
+        const diff = Date.now() - ts;
+        const mins = Math.floor(diff / 60000);
+        if (mins < 1) return 'just now';
+        if (mins < 60) return `${mins}m ago`;
+        const hrs = Math.floor(mins / 60);
+        if (hrs < 24) return `${hrs}h ago`;
+        const days = Math.floor(hrs / 24);
+        if (days < 7) return `${days}d ago`;
+        return new Date(ts).toLocaleDateString();
+    }
+
+    function renderNotesList() {
+        const container = document.getElementById('notesList');
+        const q = state.notesSearch.toLowerCase();
+        const subjFilter = state.notesSubjectFilter;
+
+        let notes = [...state.notes];
+        if (q) notes = notes.filter(n => (n.title||'').toLowerCase().includes(q) || (n.content||'').toLowerCase().includes(q));
+        if (subjFilter) notes = notes.filter(n => n.subjectId === subjFilter);
+        notes.sort((a,b) => b.updatedAt - a.updatedAt);
+
+        if (!notes.length) {
+            container.innerHTML = `<div class="empty-state" style="padding:30px 10px;"><div class="empty-state-icon">📓</div><p style="font-size:13px;">No notes found</p></div>`;
+            return;
+        }
+
+        container.innerHTML = '';
+        notes.forEach(n => {
+            const item = document.createElement('div');
+            item.className = 'note-item' + (n.id === state.currentNoteId ? ' active' : '');
+            const subjectDot = n.subjectColor ? `<span class="note-item-subject" style="background:${n.subjectColor}"></span>` : '';
+            item.innerHTML = `
+                <div class="note-item-title">${n.title || 'Untitled'}</div>
+                <div class="note-item-meta">${subjectDot}${n.subjectName ? `<span>${n.subjectName}</span> · ` : ''}<span>${fmtRelative(n.updatedAt)}</span></div>
+                <div class="note-item-snippet">${noteSnippet(n.content) || 'No content yet'}</div>`;
+            item.addEventListener('click', () => selectNote(n.id));
+            container.appendChild(item);
+        });
+    }
+
+    function selectNote(id) {
+        if (state.noteSaveTimer) { clearTimeout(state.noteSaveTimer); flushNoteSave(); }
+        state.currentNoteId = id;
+        const note = state.notes.find(n => n.id === id);
+        if (!note) return;
+
+        document.getElementById('notesEmptyState').style.display = 'none';
+        document.getElementById('notesEditorInner').style.display = 'flex';
+        document.getElementById('noteTitleInput').value = note.title || '';
+        document.getElementById('noteSubjectSelect').value = note.subjectId || '';
+        document.getElementById('noteContentInput').value = note.content || '';
+        document.getElementById('notesStatus').textContent = 'Saved';
+        renderNotePreview();
+        renderNotesList();
+    }
+
+    function newNote() {
+        if (state.noteSaveTimer) { clearTimeout(state.noteSaveTimer); flushNoteSave(); }
+        const note = { id: genId(), title: '', content: '', subjectId: null, subjectName: null, subjectColor: null,
+            createdAt: Date.now(), updatedAt: Date.now() };
+        state.notes.unshift(note);
+        DB.saveNote(note);
+        selectNote(note.id);
+        document.getElementById('noteTitleInput').focus();
+    }
+
+    document.getElementById('newNoteBtn').addEventListener('click', newNote);
+
+    document.getElementById('notesSearch').addEventListener('input', e => {
+        state.notesSearch = e.target.value;
+        renderNotesList();
+    });
+    document.getElementById('notesSubjectFilter').addEventListener('change', e => {
+        state.notesSubjectFilter = e.target.value;
+        renderNotesList();
+    });
+
+    function currentNote() { return state.notes.find(n => n.id === state.currentNoteId); }
+
+    function scheduleNoteSave() {
+        document.getElementById('notesStatus').textContent = 'Saving…';
+        if (state.noteSaveTimer) clearTimeout(state.noteSaveTimer);
+        state.noteSaveTimer = setTimeout(flushNoteSave, 700);
+    }
+
+    function flushNoteSave() {
+        const note = currentNote();
+        if (!note) return;
+        note.title = document.getElementById('noteTitleInput').value;
+        note.content = document.getElementById('noteContentInput').value;
+        const subjSel = document.getElementById('noteSubjectSelect');
+        const subj = state.subjects.find(s => s.id === subjSel.value);
+        note.subjectId = subj ? subj.id : null;
+        note.subjectName = subj ? subj.name : null;
+        note.subjectColor = subj ? subj.color : null;
+        note.updatedAt = Date.now();
+
+        DB.saveNote(note);
+        document.getElementById('notesStatus').textContent = 'Saved';
+        renderNotesList();
+    }
+
+    document.getElementById('noteTitleInput').addEventListener('input', scheduleNoteSave);
+    document.getElementById('noteContentInput').addEventListener('input', () => {
+        scheduleNoteSave();
+        if (state.noteViewMode !== 'edit') renderNotePreview();
+    });
+    document.getElementById('noteSubjectSelect').addEventListener('change', () => { flushNoteSave(); });
+
+    document.getElementById('deleteNoteBtn').addEventListener('click', () => {
+        const note = currentNote();
+        if (!note) return;
+        if (!confirm('Delete this note? This cannot be undone.')) return;
+        if (state.noteSaveTimer) clearTimeout(state.noteSaveTimer);
+        state.notes = state.notes.filter(n => n.id !== note.id);
+        DB.deleteNote(note.id);
+        state.currentNoteId = null;
+        document.getElementById('notesEditorInner').style.display = 'none';
+        document.getElementById('notesEmptyState').style.display = 'flex';
+        renderNotesList();
+        showToast('Note deleted');
+    });
+
+    /* --- markdown toolbar --- */
+    function wrapSelection(before, after, placeholder) {
+        const ta = document.getElementById('noteContentInput');
+        const start = ta.selectionStart, end = ta.selectionEnd;
+        const selected = ta.value.slice(start, end) || placeholder;
+        const newText = ta.value.slice(0, start) + before + selected + after + ta.value.slice(end);
+        ta.value = newText;
+        ta.focus();
+        ta.selectionStart = start + before.length;
+        ta.selectionEnd = start + before.length + selected.length;
+        scheduleNoteSave();
+        if (state.noteViewMode !== 'edit') renderNotePreview();
+    }
+    function linePrefix(prefix) {
+        const ta = document.getElementById('noteContentInput');
+        const start = ta.selectionStart;
+        const lineStart = ta.value.lastIndexOf('\n', start - 1) + 1;
+        ta.value = ta.value.slice(0, lineStart) + prefix + ta.value.slice(lineStart);
+        ta.focus();
+        scheduleNoteSave();
+        if (state.noteViewMode !== 'edit') renderNotePreview();
+    }
+    document.querySelectorAll('.md-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            switch (btn.dataset.md) {
+                case 'bold':   wrapSelection('**', '**', 'bold text'); break;
+                case 'italic': wrapSelection('_', '_', 'italic text'); break;
+                case 'h2':     linePrefix('## '); break;
+                case 'ul':     linePrefix('- '); break;
+                case 'ol':     linePrefix('1. '); break;
+                case 'code':   wrapSelection('`', '`', 'code'); break;
+                case 'link':   wrapSelection('[', '](https://)', 'link text'); break;
+            }
+        });
+    });
+
+    /* --- preview / split / edit modes --- */
+    function renderNotePreview() {
+        const raw = document.getElementById('noteContentInput').value;
+        try {
+            document.getElementById('notePreview').innerHTML = window.marked ? marked.parse(raw) : raw;
+        } catch (e) {
+            document.getElementById('notePreview').textContent = raw;
+        }
+    }
+    document.querySelectorAll('.mv-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.mv-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            state.noteViewMode = btn.dataset.mode;
+            const ta = document.getElementById('noteContentInput');
+            const pv = document.getElementById('notePreview');
+            if (state.noteViewMode === 'edit') {
+                ta.style.display = 'block'; pv.style.display = 'none'; ta.style.borderRight = 'none';
+            } else if (state.noteViewMode === 'preview') {
+                ta.style.display = 'none'; pv.style.display = 'block';
+                renderNotePreview();
+            } else {
+                ta.style.display = 'block'; pv.style.display = 'block';
+                renderNotePreview();
+            }
+        });
+    });
+
+    /* ====================================================
        HISTORY
     ==================================================== */
     let activeFilter = 'all';
@@ -2578,6 +2957,8 @@
         renderHistory();
         renderStatistics();
         renderTasks();
+        renderNoteSubjectFilter();
+        renderNotesList();
 
         if (!state.subjects.length) {
             state.subjects = [
@@ -2589,6 +2970,7 @@
             renderSubjectSelect();
             renderTaskSubjectSelect();
             renderSubjects();
+            renderNoteSubjectFilter();
         }
     }
 
@@ -2599,6 +2981,7 @@
         state.sessions = data.sessions;
         state.settings = data.settings;
         state.tasks    = data.tasks;
+        state.notes    = data.notes;
         init();
         document.getElementById('authScreen').style.display = 'none';
         const overlay = document.getElementById('loadingOverlay');
