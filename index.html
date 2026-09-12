@@ -753,7 +753,7 @@
         header {
             background: var(--bg-secondary);
             border-bottom: 1px solid var(--border-color);
-            padding: 16px 0;
+            padding: calc(16px + env(safe-area-inset-top)) 0 16px;
             position: sticky;
             top: 0;
             z-index: 100;
@@ -794,7 +794,7 @@
             bottom: 0; left: 0; right: 0;
             background: var(--bg-secondary);
             border-top: 1px solid var(--border-color);
-            padding: 12px 0;
+            padding: 12px 0 calc(12px + env(safe-area-inset-bottom));
             box-shadow: 0 -2px 16px rgba(0,0,0,.08);
             z-index: 100;
         }
@@ -818,7 +818,7 @@
         /* ============================
            VIEWS
         ============================ */
-        main { padding: 24px 0; }
+        main { padding: 24px 0 calc(90px + env(safe-area-inset-bottom)); }
         .view { display: none; animation: fadeIn .3s ease-in-out; }
         .view.active { display: block; }
         @keyframes fadeIn {
