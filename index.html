@@ -959,6 +959,39 @@
             .notes-editor { min-height: 420px; }
         }
 
+        /* ==== DASHBOARD ==== */
+        .dash-header { margin-bottom: 20px; }
+        .dash-title { font-size: 26px; font-weight: 800; margin-bottom: 4px; }
+        .dash-date { color: var(--text-secondary); font-size: 14px; }
+        .dash-quickstart {
+            width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px;
+            background: var(--accent-color); color: #fff; border: none; border-radius: var(--radius-lg);
+            padding: 18px; font-family: inherit; font-size: 16px; font-weight: 700;
+            cursor: pointer; margin-bottom: 20px; transition: var(--transition);
+            box-shadow: var(--shadow-sm);
+        }
+        .dash-quickstart:hover { filter: brightness(1.08); transform: translateY(-1px); }
+        .dash-quickstart-icon { font-size: 15px; }
+        .dash-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 20px;
+        }
+        .dash-card {
+            background: var(--bg-secondary); border-radius: var(--radius-lg);
+            padding: 18px; box-shadow: var(--shadow-sm);
+        }
+        .dash-card-title {
+            font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em;
+            color: var(--text-tertiary); margin-bottom: 10px;
+        }
+        .dash-card-big { font-size: 28px; font-weight: 800; color: var(--accent-color); }
+        .dash-card-empty { font-size: 13px; color: var(--text-tertiary); }
+        .dash-next-class-title { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+        .dash-next-class-meta { font-size: 12px; color: var(--text-secondary); }
+        .dash-next-class-when { font-size: 11px; color: var(--text-tertiary); margin-top: 4px; text-transform: uppercase; letter-spacing: .04em; }
+        @media (max-width: 480px) {
+            .dash-grid { grid-template-columns: 1fr; }
+        }
+
         /* ==== TIMETABLE ==== */
         .timetable-scroll { overflow-x: auto; }
         .timetable-grid {
@@ -1372,6 +1405,10 @@
 
     <nav>
         <div class="nav-items">
+            <div class="nav-item active" data-view="dashboard">
+                <div class="nav-icon">🏠</div>
+                <div class="nav-label" data-i18n="nav.dashboard">Home</div>
+            </div>
             <div class="nav-item" data-view="tasks">
                 <div class="nav-icon">✅</div>
                 <div class="nav-label" data-i18n="nav.tasks">Tasks</div>
@@ -1384,7 +1421,7 @@
                 <div class="nav-icon">🗓️</div>
                 <div class="nav-label" data-i18n="nav.timetable">Timetable</div>
             </div>
-            <div class="nav-item active" data-view="timer">
+            <div class="nav-item" data-view="timer">
                 <div class="nav-icon">⏱️</div>
                 <div class="nav-label" data-i18n="nav.timer">Timer</div>
             </div>
@@ -1406,8 +1443,42 @@
     <main>
         <div class="container">
 
+            <!-- DASHBOARD -->
+            <div class="view active" id="dashboardView">
+                <div class="dash-header">
+                    <h2 class="dash-title" id="dashGreeting">Welcome back</h2>
+                    <p class="dash-date" id="dashDate"></p>
+                </div>
+
+                <button class="dash-quickstart" id="dashQuickStart">
+                    <span class="dash-quickstart-icon">▶️</span>
+                    <span data-i18n="dashboard.startStudying">Start Studying</span>
+                </button>
+
+                <div class="dash-grid">
+                    <div class="dash-card">
+                        <div class="dash-card-title" data-i18n="dashboard.studyTimeToday">Studied Today</div>
+                        <div class="dash-card-big" id="dashStudyTime">0m</div>
+                    </div>
+                    <div class="dash-card">
+                        <div class="dash-card-title" data-i18n="dashboard.nextClass">Next Class</div>
+                        <div id="dashNextClass" class="dash-next-class">
+                            <div class="dash-card-empty" data-i18n="dashboard.noClassAtAll">No classes scheduled</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title" data-i18n="dashboard.todaysTasks">Today's Tasks</h2>
+                        <button class="icon-btn" id="dashViewAllTasks" data-i18n="dashboard.viewAll" title="View all tasks">View All</button>
+                    </div>
+                    <div id="dashTasksList"></div>
+                </div>
+            </div>
+
             <!-- TIMER -->
-            <div class="view active" id="timerView">
+            <div class="view" id="timerView">
                 <div class="timer-container">
                     <div class="mode-toggle" id="modeToggle">
                         <button type="button" class="mode-btn active" data-mode="stopwatch" data-i18n="timer.stopwatch">Stopwatch</button>
@@ -1747,7 +1818,7 @@
     ==================================================== */
     const translations = {
         en: {
-            nav:{ timer:"Timer", subjects:"Subjects", history:"History", stats:"Stats", tasks:"Tasks", notes:"Notes", timetable:"Timetable" },
+            nav:{ timer:"Timer", subjects:"Subjects", history:"History", stats:"Stats", tasks:"Tasks", notes:"Notes", timetable:"Timetable", dashboard:"Home" },
             timer:{ noSubject:"No subject selected", start:"Start", pause:"Pause", resume:"Resume", end:"End Session", selectSubject:"Select a subject", stopwatch:"Stopwatch", pomodoro:"Pomodoro", workPhase:"Focus", breakPhase:"Break", breakStart:"Focus session logged — break time!", pomodoroComplete:"Pomodoro cycle complete!" },
             subjects:{ title:"My Subjects", addNew:"+ Add New Subject", add:"Add Subject", edit:"Edit Subject", name:"Subject Name", color:"Color", noSubjects:"No subjects yet. Add your first subject to get started!" },
             history:{ title:"Study History", all:"All", today:"Today", week:"This Week", noSessions:"No study sessions yet" },
@@ -1758,11 +1829,12 @@
             timetable:{ title:"My Timetable", addNew:"+ Add to Timetable", add:"Add to Timetable", edit:"Edit Entry", name:"Title", day:"Day", start:"Start Time", end:"End Time", subject:"Subject", location:"Location (optional)", deleteConfirm:"Remove this from your timetable?", days:["Mon","Tue","Wed","Thu","Fri","Sat","Sun"], daysLong:["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"] },
             tasks:{ title:"My Tasks", addNew:"+ Add New Task", add:"Add Task", edit:"Edit Task", name:"Task Title", subject:"Subject", dueDate:"Due Date", noSubject:"No subject", noDate:"No due date", filterActive:"Active", filterAll:"All", filterDone:"Completed", noTasks:"Nothing here yet. Add a task to get started!", overdue:"Overdue", today:"Today", thisWeek:"This Week", later:"Later", noDueGroup:"No Due Date", added:"Task added", updated:"Task updated", deleted:"Task deleted", deleteConfirm:"Delete this task?" },
             notes:{ search:"Search notes…", newNote:"New note", untitled:"Untitled", empty:"Select a note or create a new one", allSubjects:"All subjects", noSubject:"No subject", startWriting:"Start writing in Markdown…", saved:"Saved", saving:"Saving…", noContent:"No content yet", deleteConfirm:"Delete this note? This cannot be undone.", deleted:"Note deleted", modeEdit:"Edit", modeSplit:"Split", modePreview:"Preview" },
+            dashboard:{ title:"Home", startStudying:"Start Studying", studyTimeToday:"Studied Today", nextClass:"Next Class", noClassToday:"No more classes today", noClassAtAll:"No classes scheduled", todaysTasks:"Today's Tasks", noTasksToday:"No tasks due today", viewAll:"View All", greetingMorning:"Good morning", greetingAfternoon:"Good afternoon", greetingEvening:"Good evening", today:"Today" },
             messages:{ sessionComplete:"Session completed!", subjectAdded:"Subject added", subjectUpdated:"Subject updated", subjectDeleted:"Subject deleted", deleteConfirm:"Are you sure you want to delete this subject?", minSession:"Session must be at least 1 minute", selectSubjectFirst:"Please select a subject first" },
             themes:{ default:"Default", darkAcademia:"Dark Academia", cottagecore:"Cottagecore", vaporwave:"Vaporwave", fairycore:"Fairycore", cyberpunk:"Cyberpunk", nord:"Nord", sunset:"Sunset", ocean:"Ocean", forest:"Forest", lavender:"Lavender", monochrome:"Monochrome", retro90s:"Retro 90s", neubrutalism:"Neubrutalism", glassmorphism:"Glassmorphism", neumorphism:"Neumorphism", flat:"Flat Design", bento:"Bento Grid", dreamcore:"Dreamcore", cybercore:"Cybercore", kidcore:"Kidcore", gorpcore:"Gorpcore", bauhaus:"Bauhaus", artnouveau:"Art Nouveau", popart:"Pop Art", brutalism:"Brutalism", bratsummer:"Brat Summer", mobwife:"Mob Wife", cleanical:"Cleanical", aquatic:"Aquatic", sixtyseven:"67 ✨" }
         },
         es: {
-            nav:{ timer:"Temporizador", subjects:"Materias", history:"Historial", stats:"Estadísticas" },
+            nav:{ timer:"Temporizador", subjects:"Materias", history:"Historial", stats:"Estadísticas", tasks:"Tareas", notes:"Notas", timetable:"Horario", dashboard:"Inicio" },
             timer:{ noSubject:"Ninguna materia seleccionada", start:"Iniciar", pause:"Pausar", resume:"Reanudar", end:"Finalizar Sesión", selectSubject:"Selecciona una materia" },
             subjects:{ title:"Mis Materias", addNew:"+ Añadir Nueva Materia", add:"Añadir Materia", edit:"Editar Materia", name:"Nombre", color:"Color", noSubjects:"Aún no hay materias. ¡Añade tu primera materia para comenzar!" },
             history:{ title:"Historial de Estudio", all:"Todo", today:"Hoy", week:"Esta Semana", noSessions:"Aún no hay sesiones de estudio" },
@@ -1773,11 +1845,12 @@
             timetable:{ title:"Mi Horario", addNew:"+ Añadir al Horario", add:"Añadir al Horario", edit:"Editar Entrada", name:"Título", day:"Día", start:"Hora de Inicio", end:"Hora de Fin", subject:"Materia", location:"Ubicación (opcional)", deleteConfirm:"¿Eliminar esto de tu horario?", days:["Lun","Mar","Mié","Jue","Vie","Sáb","Dom"], daysLong:["Lunes","Martes","Miércoles","Jueves","Viernes","Sábado","Domingo"] },
             tasks:{ title:"Mis Tareas", addNew:"+ Añadir Tarea", add:"Añadir Tarea", edit:"Editar Tarea", name:"Título de la Tarea", subject:"Materia", dueDate:"Fecha Límite", noSubject:"Sin materia", noDate:"Sin fecha límite", filterActive:"Activas", filterAll:"Todas", filterDone:"Completadas", noTasks:"Nada aquí todavía. ¡Añade una tarea para empezar!", overdue:"Vencidas", today:"Hoy", thisWeek:"Esta Semana", later:"Más Tarde", noDueGroup:"Sin Fecha Límite", added:"Tarea añadida", updated:"Tarea actualizada", deleted:"Tarea eliminada", deleteConfirm:"¿Eliminar esta tarea?" },
             notes:{ search:"Buscar notas…", newNote:"Nueva nota", untitled:"Sin título", empty:"Selecciona una nota o crea una nueva", allSubjects:"Todas las materias", noSubject:"Sin materia", startWriting:"Empieza a escribir en Markdown…", saved:"Guardado", saving:"Guardando…", noContent:"Sin contenido aún", deleteConfirm:"¿Eliminar esta nota? Esto no se puede deshacer.", deleted:"Nota eliminada", modeEdit:"Editar", modeSplit:"Dividir", modePreview:"Vista previa" },
+            dashboard:{ title:"Inicio", startStudying:"Empezar a Estudiar", studyTimeToday:"Estudiado Hoy", nextClass:"Próxima Clase", noClassToday:"No hay más clases hoy", noClassAtAll:"Sin clases programadas", todaysTasks:"Tareas de Hoy", noTasksToday:"Sin tareas para hoy", viewAll:"Ver Todas", greetingMorning:"Buenos días", greetingAfternoon:"Buenas tardes", greetingEvening:"Buenas noches", today:"Hoy" },
             messages:{ sessionComplete:"¡Sesión completada!", subjectAdded:"Materia añadida", subjectUpdated:"Materia actualizada", subjectDeleted:"Materia eliminada", deleteConfirm:"¿Eliminar esta materia?", minSession:"Mínimo 1 minuto", selectSubjectFirst:"Selecciona una materia primero" },
             themes:{ default:"Predeterminado", darkAcademia:"Academia Oscura", cottagecore:"Campo", vaporwave:"Vaporwave", fairycore:"Hada", cyberpunk:"Cyberpunk", nord:"Nord", sunset:"Atardecer", ocean:"Océano", forest:"Bosque", lavender:"Lavanda", monochrome:"Monocromo", retro90s:"Retro 90s", neubrutalism:"Neobrutalism", glassmorphism:"Glassmorphism", neumorphism:"Neumorfismo", flat:"Diseño Plano", bento:"Bento Grid", dreamcore:"Dreamcore", cybercore:"Cybercore", kidcore:"Kidcore", gorpcore:"Gorpcore", bauhaus:"Bauhaus", artnouveau:"Art Nouveau", popart:"Pop Art", brutalism:"Brutalismo", bratsummer:"Verano Brat", mobwife:"Mob Wife", cleanical:"Clínico", aquatic:"Acuático", sixtyseven:"67 ✨" }
         },
         fr: {
-            nav:{ timer:"Minuteur", subjects:"Matières", history:"Historique", stats:"Statistiques" },
+            nav:{ timer:"Minuteur", subjects:"Matières", history:"Historique", stats:"Statistiques", tasks:"Tâches", notes:"Notes", timetable:"Emploi du Temps", dashboard:"Accueil" },
             timer:{ noSubject:"Aucune matière sélectionnée", start:"Démarrer", pause:"Pause", resume:"Reprendre", end:"Terminer", selectSubject:"Sélectionnez une matière" },
             subjects:{ title:"Mes Matières", addNew:"+ Ajouter Matière", add:"Ajouter", edit:"Modifier", name:"Nom de la matière", color:"Couleur", noSubjects:"Pas encore de matières. Ajoutez-en une pour commencer!" },
             history:{ title:"Historique", all:"Tout", today:"Aujourd'hui", week:"Cette Semaine", noSessions:"Aucune session encore" },
@@ -1788,11 +1861,12 @@
             timetable:{ title:"Mon Emploi du Temps", addNew:"+ Ajouter à l'Emploi du Temps", add:"Ajouter à l'Emploi du Temps", edit:"Modifier l'Entrée", name:"Titre", day:"Jour", start:"Heure de Début", end:"Heure de Fin", subject:"Matière", location:"Lieu (optionnel)", deleteConfirm:"Supprimer de l'emploi du temps ?", days:["Lun","Mar","Mer","Jeu","Ven","Sam","Dim"], daysLong:["Lundi","Mardi","Mercredi","Jeudi","Vendredi","Samedi","Dimanche"] },
             tasks:{ title:"Mes Tâches", addNew:"+ Ajouter une Tâche", add:"Ajouter une Tâche", edit:"Modifier la Tâche", name:"Titre de la Tâche", subject:"Matière", dueDate:"Date d'Échéance", noSubject:"Aucune matière", noDate:"Aucune échéance", filterActive:"Actives", filterAll:"Toutes", filterDone:"Terminées", noTasks:"Rien ici pour l'instant. Ajoutez une tâche pour commencer !", overdue:"En Retard", today:"Aujourd'hui", thisWeek:"Cette Semaine", later:"Plus Tard", noDueGroup:"Sans Échéance", added:"Tâche ajoutée", updated:"Tâche mise à jour", deleted:"Tâche supprimée", deleteConfirm:"Supprimer cette tâche ?" },
             notes:{ search:"Rechercher des notes…", newNote:"Nouvelle note", untitled:"Sans titre", empty:"Sélectionnez une note ou créez-en une nouvelle", allSubjects:"Toutes les matières", noSubject:"Aucune matière", startWriting:"Commencez à écrire en Markdown…", saved:"Enregistré", saving:"Enregistrement…", noContent:"Pas encore de contenu", deleteConfirm:"Supprimer cette note ? Cette action est irréversible.", deleted:"Note supprimée", modeEdit:"Modifier", modeSplit:"Diviser", modePreview:"Aperçu" },
+            dashboard:{ title:"Accueil", startStudying:"Commencer à Étudier", studyTimeToday:"Étudié Aujourd'hui", nextClass:"Prochain Cours", noClassToday:"Plus de cours aujourd'hui", noClassAtAll:"Aucun cours programmé", todaysTasks:"Tâches du Jour", noTasksToday:"Aucune tâche pour aujourd'hui", viewAll:"Tout Voir", greetingMorning:"Bonjour", greetingAfternoon:"Bon après-midi", greetingEvening:"Bonsoir", today:"Aujourd'hui" },
             messages:{ sessionComplete:"Session terminée!", subjectAdded:"Matière ajoutée", subjectUpdated:"Matière mise à jour", subjectDeleted:"Matière supprimée", deleteConfirm:"Supprimer cette matière?", minSession:"Minimum 1 minute", selectSubjectFirst:"Sélectionnez une matière d'abord" },
             themes:{ default:"Par Défaut", darkAcademia:"Académie Sombre", cottagecore:"Champêtre", vaporwave:"Vaporwave", fairycore:"Féerique", cyberpunk:"Cyberpunk", nord:"Nord", sunset:"Coucher", ocean:"Océan", forest:"Forêt", lavender:"Lavande", monochrome:"Monochrome", retro90s:"Rétro 90s", neubrutalism:"Néobrutalism", glassmorphism:"Glassmorphism", neumorphism:"Neumorphisme", flat:"Design Plat", bento:"Bento Grid", dreamcore:"Dreamcore", cybercore:"Cybercore", kidcore:"Kidcore", gorpcore:"Gorpcore", bauhaus:"Bauhaus", artnouveau:"Art Nouveau", popart:"Pop Art", brutalism:"Brutalisme", bratsummer:"Été Brat", mobwife:"Mob Wife", cleanical:"Clinique", aquatic:"Aquatique", sixtyseven:"67 ✨" }
         },
         de: {
-            nav:{ timer:"Timer", subjects:"Fächer", history:"Verlauf", stats:"Statistiken" },
+            nav:{ timer:"Timer", subjects:"Fächer", history:"Verlauf", stats:"Statistiken", tasks:"Aufgaben", notes:"Notizen", timetable:"Stundenplan", dashboard:"Start" },
             timer:{ noSubject:"Kein Fach ausgewählt", start:"Start", pause:"Pause", resume:"Fortsetzen", end:"Sitzung beenden", selectSubject:"Wähle ein Fach" },
             subjects:{ title:"Meine Fächer", addNew:"+ Neues Fach", add:"Fach hinzufügen", edit:"Fach bearbeiten", name:"Fachname", color:"Farbe", noSubjects:"Noch keine Fächer. Füge dein erstes Fach hinzu!" },
             history:{ title:"Lernverlauf", all:"Alle", today:"Heute", week:"Diese Woche", noSessions:"Noch keine Sitzungen" },
@@ -1803,11 +1877,12 @@
             timetable:{ title:"Mein Stundenplan", addNew:"+ Zum Stundenplan hinzufügen", add:"Zum Stundenplan hinzufügen", edit:"Eintrag bearbeiten", name:"Titel", day:"Tag", start:"Startzeit", end:"Endzeit", subject:"Fach", location:"Ort (optional)", deleteConfirm:"Aus dem Stundenplan entfernen?", days:["Mo","Di","Mi","Do","Fr","Sa","So"], daysLong:["Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag","Sonntag"] },
             tasks:{ title:"Meine Aufgaben", addNew:"+ Neue Aufgabe", add:"Aufgabe hinzufügen", edit:"Aufgabe bearbeiten", name:"Aufgabentitel", subject:"Fach", dueDate:"Fälligkeitsdatum", noSubject:"Kein Fach", noDate:"Kein Fälligkeitsdatum", filterActive:"Aktiv", filterAll:"Alle", filterDone:"Erledigt", noTasks:"Hier ist noch nichts. Füge eine Aufgabe hinzu, um zu beginnen!", overdue:"Überfällig", today:"Heute", thisWeek:"Diese Woche", later:"Später", noDueGroup:"Kein Fälligkeitsdatum", added:"Aufgabe hinzugefügt", updated:"Aufgabe aktualisiert", deleted:"Aufgabe gelöscht", deleteConfirm:"Diese Aufgabe löschen?" },
             notes:{ search:"Notizen durchsuchen…", newNote:"Neue Notiz", untitled:"Ohne Titel", empty:"Wähle eine Notiz aus oder erstelle eine neue", allSubjects:"Alle Fächer", noSubject:"Kein Fach", startWriting:"Beginne in Markdown zu schreiben…", saved:"Gespeichert", saving:"Speichern…", noContent:"Noch kein Inhalt", deleteConfirm:"Diese Notiz löschen? Dies kann nicht rückgängig gemacht werden.", deleted:"Notiz gelöscht", modeEdit:"Bearbeiten", modeSplit:"Geteilt", modePreview:"Vorschau" },
+            dashboard:{ title:"Start", startStudying:"Lernen Beginnen", studyTimeToday:"Heute Gelernt", nextClass:"Nächste Stunde", noClassToday:"Heute keine weiteren Stunden", noClassAtAll:"Keine Stunden geplant", todaysTasks:"Heutige Aufgaben", noTasksToday:"Keine Aufgaben heute fällig", viewAll:"Alle Anzeigen", greetingMorning:"Guten Morgen", greetingAfternoon:"Guten Tag", greetingEvening:"Guten Abend", today:"Heute" },
             messages:{ sessionComplete:"Sitzung abgeschlossen!", subjectAdded:"Fach hinzugefügt", subjectUpdated:"Fach aktualisiert", subjectDeleted:"Fach gelöscht", deleteConfirm:"Dieses Fach löschen?", minSession:"Mindestens 1 Minute", selectSubjectFirst:"Bitte wähle erst ein Fach" },
             themes:{ default:"Standard", darkAcademia:"Dunkle Akademie", cottagecore:"Landleben", vaporwave:"Vaporwave", fairycore:"Fee", cyberpunk:"Cyberpunk", nord:"Nord", sunset:"Sonnenuntergang", ocean:"Ozean", forest:"Wald", lavender:"Lavendel", monochrome:"Monochrom", retro90s:"Retro 90er", neubrutalism:"Neobrutalism", glassmorphism:"Glassmorphism", neumorphism:"Neumorphismus", flat:"Flaches Design", bento:"Bento Grid", dreamcore:"Dreamcore", cybercore:"Cybercore", kidcore:"Kidcore", gorpcore:"Gorpcore", bauhaus:"Bauhaus", artnouveau:"Art Nouveau", popart:"Pop Art", brutalism:"Brutalismus", bratsummer:"Brat Sommer", mobwife:"Mob Wife", cleanical:"Klinisch", aquatic:"Aquatisch", sixtyseven:"67 ✨" }
         },
         zh: {
-            nav:{ timer:"计时器", subjects:"科目", history:"历史", stats:"统计" },
+            nav:{ timer:"计时器", subjects:"科目", history:"历史", stats:"统计", tasks:"任务", notes:"笔记", timetable:"课程表", dashboard:"主页" },
             timer:{ noSubject:"未选择科目", start:"开始", pause:"暂停", resume:"继续", end:"结束学习", selectSubject:"选择一个科目" },
             subjects:{ title:"我的科目", addNew:"+ 添加新科目", add:"添加科目", edit:"编辑科目", name:"科目名称", color:"颜色", noSubjects:"还没有科目。添加您的第一个科目开始吧！" },
             history:{ title:"学习历史", all:"全部", today:"今天", week:"本周", noSessions:"还没有学习记录" },
@@ -1818,11 +1893,12 @@
             timetable:{ title:"我的课程表", addNew:"+ 添加到课程表", add:"添加到课程表", edit:"编辑条目", name:"标题", day:"星期", start:"开始时间", end:"结束时间", subject:"科目", location:"地点（可选）", deleteConfirm:"从课程表中删除此项？", days:["周一","周二","周三","周四","周五","周六","周日"], daysLong:["星期一","星期二","星期三","星期四","星期五","星期六","星期日"] },
             tasks:{ title:"我的任务", addNew:"+ 添加新任务", add:"添加任务", edit:"编辑任务", name:"任务标题", subject:"科目", dueDate:"截止日期", noSubject:"无科目", noDate:"无截止日期", filterActive:"进行中", filterAll:"全部", filterDone:"已完成", noTasks:"这里还没有任务，添加一个开始吧！", overdue:"已逾期", today:"今天", thisWeek:"本周", later:"以后", noDueGroup:"无截止日期", added:"任务已添加", updated:"任务已更新", deleted:"任务已删除", deleteConfirm:"删除此任务？" },
             notes:{ search:"搜索笔记…", newNote:"新建笔记", untitled:"无标题", empty:"选择一篇笔记或新建一篇", allSubjects:"所有科目", noSubject:"无科目", startWriting:"开始使用 Markdown 写作…", saved:"已保存", saving:"保存中…", noContent:"暂无内容", deleteConfirm:"删除此笔记？此操作无法撤销。", deleted:"笔记已删除", modeEdit:"编辑", modeSplit:"分屏", modePreview:"预览" },
+            dashboard:{ title:"主页", startStudying:"开始学习", studyTimeToday:"今日已学习", nextClass:"下一节课", noClassToday:"今天没有更多课程", noClassAtAll:"暂无课程安排", todaysTasks:"今日任务", noTasksToday:"今天没有到期任务", viewAll:"查看全部", greetingMorning:"早上好", greetingAfternoon:"下午好", greetingEvening:"晚上好", today:"今天" },
             messages:{ sessionComplete:"学习完成！", subjectAdded:"科目已添加", subjectUpdated:"科目已更新", subjectDeleted:"科目已删除", deleteConfirm:"确定要删除此科目吗？", minSession:"学习时长必须至少1分钟", selectSubjectFirst:"请先选择一个科目" },
             themes:{ default:"默认", darkAcademia:"深色学院", cottagecore:"田园", vaporwave:"蒸汽波", fairycore:"仙女", cyberpunk:"赛博朋克", nord:"北欧", sunset:"日落", ocean:"海洋", forest:"森林", lavender:"薰衣草", monochrome:"单色", retro90s:"复古90年代", neubrutalism:"新粗野", glassmorphism:"玻璃态", neumorphism:"新拟态", flat:"扁平设计", bento:"便当格", dreamcore:"梦核", cybercore:"赛博核", kidcore:"童趣核", gorpcore:"户外核", bauhaus:"包豪斯", artnouveau:"新艺术", popart:"波普艺术", brutalism:"粗野主义", bratsummer:"顽皮夏日", mobwife:"黑帮妻子", cleanical:"临床风", aquatic:"水生", sixtyseven:"67 ✨" }
         },
         ja: {
-            nav:{ timer:"タイマー", subjects:"科目", history:"履歴", stats:"統計" },
+            nav:{ timer:"タイマー", subjects:"科目", history:"履歴", stats:"統計", tasks:"タスク", notes:"ノート", timetable:"時間割", dashboard:"ホーム" },
             timer:{ noSubject:"科目が未選択", start:"開始", pause:"一時停止", resume:"再開", end:"終了", selectSubject:"科目を選択" },
             subjects:{ title:"マイ科目", addNew:"+ 科目を追加", add:"科目を追加", edit:"科目を編集", name:"科目名", color:"カラー", noSubjects:"まだ科目がありません。最初の科目を追加しましょう！" },
             history:{ title:"学習履歴", all:"すべて", today:"今日", week:"今週", noSessions:"まだ学習セッションがありません" },
@@ -1833,11 +1909,12 @@
             timetable:{ title:"時間割", addNew:"+ 時間割に追加", add:"時間割に追加", edit:"予定を編集", name:"タイトル", day:"曜日", start:"開始時刻", end:"終了時刻", subject:"科目", location:"場所（任意）", deleteConfirm:"時間割から削除しますか？", days:["月","火","水","木","金","土","日"], daysLong:["月曜日","火曜日","水曜日","木曜日","金曜日","土曜日","日曜日"] },
             tasks:{ title:"タスク", addNew:"+ 新しいタスク", add:"タスクを追加", edit:"タスクを編集", name:"タスク名", subject:"科目", dueDate:"期限", noSubject:"科目なし", noDate:"期限なし", filterActive:"進行中", filterAll:"すべて", filterDone:"完了", noTasks:"タスクがまだありません。追加して始めましょう！", overdue:"期限超過", today:"今日", thisWeek:"今週", later:"それ以降", noDueGroup:"期限なし", added:"タスクを追加しました", updated:"タスクを更新しました", deleted:"タスクを削除しました", deleteConfirm:"このタスクを削除しますか？" },
             notes:{ search:"ノートを検索…", newNote:"新規ノート", untitled:"無題", empty:"ノートを選択するか、新しく作成してください", allSubjects:"すべての科目", noSubject:"科目なし", startWriting:"Markdownで書き始める…", saved:"保存済み", saving:"保存中…", noContent:"まだ内容がありません", deleteConfirm:"このノートを削除しますか？元に戻せません。", deleted:"ノートを削除しました", modeEdit:"編集", modeSplit:"分割", modePreview:"プレビュー" },
+            dashboard:{ title:"ホーム", startStudying:"勉強を始める", studyTimeToday:"今日の学習時間", nextClass:"次の授業", noClassToday:"本日の授業は終了しました", noClassAtAll:"授業の予定はありません", todaysTasks:"今日のタスク", noTasksToday:"本日期限のタスクはありません", viewAll:"すべて見る", greetingMorning:"おはようございます", greetingAfternoon:"こんにちは", greetingEvening:"こんばんは", today:"今日" },
             messages:{ sessionComplete:"セッション完了！", subjectAdded:"科目が追加されました", subjectUpdated:"科目が更新されました", subjectDeleted:"科目が削除されました", deleteConfirm:"この科目を削除しますか？", minSession:"最低1分必要です", selectSubjectFirst:"まず科目を選択してください" },
             themes:{ default:"デフォルト", darkAcademia:"ダークアカデミア", cottagecore:"カントリー", vaporwave:"ヴェイパー", fairycore:"フェアリー", cyberpunk:"サイバーパンク", nord:"ノルド", sunset:"サンセット", ocean:"オーシャン", forest:"フォレスト", lavender:"ラベンダー", monochrome:"モノクローム", retro90s:"レトロ90年代", neubrutalism:"ネオブルタリズム", glassmorphism:"グラスモーフィズム", neumorphism:"ニューモーフィズム", flat:"フラット", bento:"弁当", dreamcore:"ドリームコア", cybercore:"サイバーコア", kidcore:"キッドコア", gorpcore:"ゴープコア", bauhaus:"バウハウス", artnouveau:"アールヌーヴォー", popart:"ポップアート", brutalism:"ブルータリズム", bratsummer:"ブラットサマー", mobwife:"モブワイフ", cleanical:"クリニカル", aquatic:"アクアティック", sixtyseven:"67 ✨" }
         },
         ko: {
-            nav:{ timer:"타이머", subjects:"과목", history:"기록", stats:"통계" },
+            nav:{ timer:"타이머", subjects:"과목", history:"기록", stats:"통계", tasks:"할 일", notes:"노트", timetable:"시간표", dashboard:"홈" },
             timer:{ noSubject:"선택된 과목 없음", start:"시작", pause:"일시정지", resume:"재개", end:"세션 종료", selectSubject:"과목 선택" },
             subjects:{ title:"내 과목", addNew:"+ 새 과목 추가", add:"과목 추가", edit:"과목 편집", name:"과목명", color:"색상", noSubjects:"아직 과목이 없습니다. 첫 번째 과목을 추가하세요!" },
             history:{ title:"학습 기록", all:"전체", today:"오늘", week:"이번 주", noSessions:"아직 학습 세션이 없습니다" },
@@ -1848,11 +1925,12 @@
             timetable:{ title:"내 시간표", addNew:"+ 시간표에 추가", add:"시간표에 추가", edit:"일정 수정", name:"제목", day:"요일", start:"시작 시간", end:"종료 시간", subject:"과목", location:"장소 (선택)", deleteConfirm:"시간표에서 삭제하시겠습니까?", days:["월","화","수","목","금","토","일"], daysLong:["월요일","화요일","수요일","목요일","금요일","토요일","일요일"] },
             tasks:{ title:"할 일", addNew:"+ 새 할 일 추가", add:"할 일 추가", edit:"할 일 수정", name:"할 일 제목", subject:"과목", dueDate:"마감일", noSubject:"과목 없음", noDate:"마감일 없음", filterActive:"진행 중", filterAll:"전체", filterDone:"완료됨", noTasks:"아직 할 일이 없습니다. 추가해서 시작해보세요!", overdue:"기한 초과", today:"오늘", thisWeek:"이번 주", later:"나중에", noDueGroup:"마감일 없음", added:"할 일이 추가되었습니다", updated:"할 일이 업데이트되었습니다", deleted:"할 일이 삭제되었습니다", deleteConfirm:"이 할 일을 삭제하시겠습니까?" },
             notes:{ search:"노트 검색…", newNote:"새 노트", untitled:"제목 없음", empty:"노트를 선택하거나 새로 만드세요", allSubjects:"모든 과목", noSubject:"과목 없음", startWriting:"마크다운으로 작성을 시작하세요…", saved:"저장됨", saving:"저장 중…", noContent:"아직 내용이 없습니다", deleteConfirm:"이 노트를 삭제하시겠습니까? 되돌릴 수 없습니다.", deleted:"노트가 삭제되었습니다", modeEdit:"편집", modeSplit:"분할", modePreview:"미리보기" },
+            dashboard:{ title:"홈", startStudying:"공부 시작하기", studyTimeToday:"오늘 공부한 시간", nextClass:"다음 수업", noClassToday:"오늘 남은 수업이 없습니다", noClassAtAll:"예정된 수업이 없습니다", todaysTasks:"오늘의 할 일", noTasksToday:"오늘 마감인 할 일이 없습니다", viewAll:"전체 보기", greetingMorning:"좋은 아침이에요", greetingAfternoon:"좋은 오후예요", greetingEvening:"좋은 저녁이에요", today:"오늘" },
             messages:{ sessionComplete:"세션 완료!", subjectAdded:"과목이 추가되었습니다", subjectUpdated:"과목이 업데이트되었습니다", subjectDeleted:"과목이 삭제되었습니다", deleteConfirm:"이 과목을 삭제하시겠습니까?", minSession:"최소 1분이어야 합니다", selectSubjectFirst:"먼저 과목을 선택하세요" },
             themes:{ default:"기본", darkAcademia:"다크 아카데미아", cottagecore:"코티지코어", vaporwave:"베이퍼웨이브", fairycore:"페어리코어", cyberpunk:"사이버펑크", nord:"노르드", sunset:"석양", ocean:"바다", forest:"숲", lavender:"라벤더", monochrome:"모노크롬", retro90s:"레트로 90년대", neubrutalism:"네오브루탈리즘", glassmorphism:"글래스모피즘", neumorphism:"뉴모피즘", flat:"플랫 디자인", bento:"벤토 그리드", dreamcore:"드림코어", cybercore:"사이버코어", kidcore:"키드코어", gorpcore:"고프코어", bauhaus:"바우하우스", artnouveau:"아르누보", popart:"팝아트", brutalism:"브루탈리즘", bratsummer:"브랫 서머", mobwife:"몹 와이프", cleanical:"클리니컬", aquatic:"아쿠아틱", sixtyseven:"67 ✨" }
         },
         ar: {
-            nav:{ timer:"المؤقت", subjects:"المواد", history:"السجل", stats:"الإحصائيات" },
+            nav:{ timer:"المؤقت", subjects:"المواد", history:"السجل", stats:"الإحصائيات", tasks:"المهام", notes:"الملاحظات", timetable:"الجدول الدراسي", dashboard:"الرئيسية" },
             timer:{ noSubject:"لم يتم اختيار مادة", start:"بدء", pause:"إيقاف", resume:"استئناف", end:"إنهاء الجلسة", selectSubject:"اختر مادة" },
             subjects:{ title:"موادي", addNew:"+ إضافة مادة", add:"إضافة مادة", edit:"تحرير المادة", name:"اسم المادة", color:"اللون", noSubjects:"لا توجد مواد بعد. أضف مادتك الأولى للبدء!" },
             history:{ title:"سجل الدراسة", all:"الكل", today:"اليوم", week:"هذا الأسبوع", noSessions:"لا توجد جلسات بعد" },
@@ -1863,6 +1941,7 @@
             timetable:{ title:"جدولي الدراسي", addNew:"+ إضافة إلى الجدول", add:"إضافة إلى الجدول", edit:"تعديل الحصة", name:"العنوان", day:"اليوم", start:"وقت البدء", end:"وقت الانتهاء", subject:"المادة", location:"الموقع (اختياري)", deleteConfirm:"إزالة هذا من الجدول؟", days:["الإثنين","الثلاثاء","الأربعاء","الخميس","الجمعة","السبت","الأحد"], daysLong:["الإثنين","الثلاثاء","الأربعاء","الخميس","الجمعة","السبت","الأحد"] },
             tasks:{ title:"مهامي", addNew:"+ إضافة مهمة جديدة", add:"إضافة مهمة", edit:"تعديل المهمة", name:"عنوان المهمة", subject:"المادة", dueDate:"تاريخ الاستحقاق", noSubject:"بدون مادة", noDate:"بدون تاريخ استحقاق", filterActive:"نشطة", filterAll:"الكل", filterDone:"مكتملة", noTasks:"لا يوجد شيء هنا بعد. أضف مهمة للبدء!", overdue:"متأخرة", today:"اليوم", thisWeek:"هذا الأسبوع", later:"لاحقاً", noDueGroup:"بدون تاريخ استحقاق", added:"تمت إضافة المهمة", updated:"تم تحديث المهمة", deleted:"تم حذف المهمة", deleteConfirm:"حذف هذه المهمة؟" },
             notes:{ search:"البحث في الملاحظات…", newNote:"ملاحظة جديدة", untitled:"بدون عنوان", empty:"اختر ملاحظة أو أنشئ واحدة جديدة", allSubjects:"جميع المواد", noSubject:"بدون مادة", startWriting:"ابدأ الكتابة بصيغة Markdown…", saved:"تم الحفظ", saving:"جارٍ الحفظ…", noContent:"لا يوجد محتوى بعد", deleteConfirm:"حذف هذه الملاحظة؟ لا يمكن التراجع عن هذا.", deleted:"تم حذف الملاحظة", modeEdit:"تحرير", modeSplit:"تقسيم", modePreview:"معاينة" },
+            dashboard:{ title:"الرئيسية", startStudying:"ابدأ الدراسة", studyTimeToday:"وقت الدراسة اليوم", nextClass:"الحصة القادمة", noClassToday:"لا توجد حصص أخرى اليوم", noClassAtAll:"لا توجد حصص مجدولة", todaysTasks:"مهام اليوم", noTasksToday:"لا توجد مهام مستحقة اليوم", viewAll:"عرض الكل", greetingMorning:"صباح الخير", greetingAfternoon:"مساء الخير", greetingEvening:"مساء الخير", today:"اليوم" },
             messages:{ sessionComplete:"اكتملت الجلسة!", subjectAdded:"تمت إضافة المادة", subjectUpdated:"تم تحديث المادة", subjectDeleted:"تم حذف المادة", deleteConfirm:"هل تريد حذف هذه المادة؟", minSession:"دقيقة واحدة على الأقل", selectSubjectFirst:"الرجاء اختيار مادة أولاً" },
             themes:{ default:"افتراضي", darkAcademia:"أكاديمية مظلمة", cottagecore:"ريفي", vaporwave:"فيبورويف", fairycore:"خيالي", cyberpunk:"سايبربانك", nord:"نورد", sunset:"غروب", ocean:"محيط", forest:"غابة", lavender:"خزامى", monochrome:"أحادي", retro90s:"ريترو 90", neubrutalism:"نيوبروتال", glassmorphism:"زجاجي", neumorphism:"نيومورفيك", flat:"مسطح", bento:"بينتو", dreamcore:"دريم كور", cybercore:"سايبر كور", kidcore:"كيد كور", gorpcore:"جورب كور", bauhaus:"باوهاوس", artnouveau:"آرت نوفو", popart:"بوب آرت", brutalism:"بروتاليزم", bratsummer:"صيف برات", mobwife:"موب وايف", cleanical:"سريري", aquatic:"مائي", sixtyseven:"67 ✨" }
         }
@@ -2188,6 +2267,7 @@
         renderNotesList();
         renderTimetableSubjectSelect();
         renderTimetable();
+        renderDashboard();
         updatePhaseBadge();
     }
 
@@ -2203,14 +2283,18 @@
         if (name === 'tasks')      renderTasks();
         if (name === 'notes')      { renderNoteSubjectFilter(); renderNotesList(); }
         if (name === 'timetable')  renderTimetable();
+        if (name === 'dashboard')  renderDashboard();
+    }
+
+    function navigateToView(name) {
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        const item = document.querySelector(`.nav-item[data-view="${name}"]`);
+        if (item) item.classList.add('active');
+        switchView(name);
     }
 
     document.querySelectorAll('.nav-item').forEach(item => {
-        item.addEventListener('click', () => {
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            item.classList.add('active');
-            switchView(item.dataset.view);
-        });
+        item.addEventListener('click', () => navigateToView(item.dataset.view));
     });
 
     /* ====================================================
@@ -2648,12 +2732,17 @@
         return item;
     }
 
+    function refreshTaskViews() {
+        renderTasks();
+        if (document.getElementById('dashboardView').classList.contains('active')) renderDashboardTasks();
+    }
+
     function toggleTaskComplete(id) {
         const tk = state.tasks.find(x => x.id === id);
         if (!tk) return;
         tk.completed = !tk.completed;
         DB.setTasks([tk]);
-        renderTasks();
+        refreshTaskViews();
     }
 
     window.editTask = id => {
@@ -2664,7 +2753,7 @@
         if (!confirm(t('tasks.deleteConfirm'))) return;
         state.tasks = state.tasks.filter(tk => tk.id !== id);
         DB.deleteTask(id);
-        renderTasks();
+        refreshTaskViews();
         showToast(t('tasks.deleted'));
     };
 
@@ -2717,7 +2806,7 @@
             state.tasks.push(changed);
         }
         DB.setTasks([changed]);
-        renderTasks();
+        refreshTaskViews();
         showToast(t(state.editingTask ? 'tasks.updated' : 'tasks.added'));
         hideTaskModal();
     });
@@ -3130,6 +3219,90 @@
     });
 
     /* ====================================================
+       DASHBOARD
+    ==================================================== */
+    function currentDowIndex() { return (new Date().getDay() + 6) % 7; } // Mon=0..Sun=6
+    function currentTimeStr() {
+        const d = new Date();
+        return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+    }
+
+    function renderDashboardGreeting() {
+        const hour = new Date().getHours();
+        const key = hour < 12 ? 'dashboard.greetingMorning' : hour < 18 ? 'dashboard.greetingAfternoon' : 'dashboard.greetingEvening';
+        document.getElementById('dashGreeting').textContent = t(key);
+        document.getElementById('dashDate').textContent = new Date().toLocaleDateString(undefined, { weekday:'long', month:'long', day:'numeric' });
+    }
+
+    function renderDashboardStudyTime() {
+        const today = localDateStr();
+        const totalSeconds = state.sessions.filter(s => s.date === today).reduce((a,s) => a + s.duration, 0);
+        document.getElementById('dashStudyTime').textContent = fmtDur(totalSeconds);
+    }
+
+    function renderDashboardNextClass() {
+        const container = document.getElementById('dashNextClass');
+        const todayIdx = currentDowIndex();
+        const nowStr = currentTimeStr();
+
+        // Today's remaining classes, soonest first
+        const todayRemaining = state.timetable
+            .filter(e => e.dayOfWeek === todayIdx && e.startTime > nowStr)
+            .sort((a,b) => a.startTime.localeCompare(b.startTime));
+
+        let match = todayRemaining[0];
+        let whenLabel = t('dashboard.today');
+
+        if (!match) {
+            // Look ahead up to 6 days for the next day that has any entries at all
+            for (let offset = 1; offset <= 6 && !match; offset++) {
+                const checkIdx = (todayIdx + offset) % 7;
+                const dayEntries = state.timetable
+                    .filter(e => e.dayOfWeek === checkIdx)
+                    .sort((a,b) => a.startTime.localeCompare(b.startTime));
+                if (dayEntries.length) {
+                    match = dayEntries[0];
+                    whenLabel = ttDayNamesLong()[checkIdx];
+                }
+            }
+        }
+
+        if (!match) {
+            container.innerHTML = `<div class="dash-card-empty">${t('dashboard.noClassAtAll')}</div>`;
+            return;
+        }
+
+        container.innerHTML = `
+            <div class="dash-next-class-title" style="color:${match.subjectColor || 'var(--accent-color)'}">${escapeHtml(match.title)}</div>
+            <div class="dash-next-class-meta">${match.startTime}–${match.endTime}${match.location ? ' · ' + escapeHtml(match.location) : ''}</div>
+            <div class="dash-next-class-when">${whenLabel}</div>`;
+    }
+
+    function renderDashboardTasks() {
+        const container = document.getElementById('dashTasksList');
+        const today = localDateStr();
+        const todaysTasks = state.tasks.filter(tk => tk.dueDate === today && !tk.completed);
+
+        if (!todaysTasks.length) {
+            container.innerHTML = `<div class="empty-state" style="padding:20px 10px;"><div class="empty-state-icon">✅</div><p style="font-size:13px;">${t('dashboard.noTasksToday')}</p></div>`;
+            return;
+        }
+
+        container.innerHTML = '';
+        todaysTasks.forEach(tk => container.appendChild(renderTaskItem(tk, false)));
+    }
+
+    function renderDashboard() {
+        renderDashboardGreeting();
+        renderDashboardStudyTime();
+        renderDashboardNextClass();
+        renderDashboardTasks();
+    }
+
+    document.getElementById('dashQuickStart').addEventListener('click', () => navigateToView('timer'));
+    document.getElementById('dashViewAllTasks').addEventListener('click', () => navigateToView('tasks'));
+
+    /* ====================================================
        HISTORY
     ==================================================== */
     let activeFilter = 'all';
@@ -3360,6 +3533,7 @@
         renderNotesList();
         renderTimetableSubjectSelect();
         renderTimetable();
+        renderDashboard();
 
         if (!state.subjects.length) {
             state.subjects = [
