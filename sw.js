@@ -6,7 +6,11 @@
 // IMPORTANT: bump CACHE_NAME any time you deploy a meaningful update.
 // Changing this value is what forces already-installed users to pick
 // up the new version instead of being stuck on a stale cached copy.
-const CACHE_NAME = 'studyco-shell-v2';
+const CACHE_NAME = 'studyco-shell-v4';
+
+// Third-party files that are safe to serve from cache and refresh in the background
+// (versioned libraries + Google Fonts). Supabase/API traffic is never cached.
+const CDN_HOSTS = ['cdn.jsdelivr.net', 'fonts.googleapis.com', 'fonts.gstatic.com'];
 
 const SHELL_FILES = [
   '/',
@@ -35,9 +39,26 @@ self.addEventListener('activate', event => {
 self.addEventListener('fetch', event => {
   const url = new URL(event.request.url);
 
-  // Never cache/interfere with Supabase (or any other) API calls —
-  // those must always hit the real network for fresh, correct data.
-  if (url.origin !== self.location.origin) return;
+  if (event.request.method !== 'GET') return;
+
+  if (url.origin !== self.location.origin) {
+    if (CDN_HOSTS.includes(url.hostname)) {
+      // STALE-WHILE-REVALIDATE: instant start from cache, quietly refresh for next time
+      event.respondWith(
+        caches.open(CACHE_NAME).then(async cache => {
+          const cached = await cache.match(event.request);
+          const network = fetch(event.request).then(response => {
+            if (response && (response.ok || response.type === 'opaque')) cache.put(event.request, response.clone());
+            return response;
+          }).catch(() => cached);
+          return cached || network;
+        })
+      );
+    }
+    // Never cache/interfere with Supabase (or any other) API calls —
+    // those must always hit the real network for fresh, correct data.
+    return;
+  }
 
   const isHtmlRequest = event.request.mode === 'navigate' ||
     url.pathname === '/' || url.pathname.endsWith('/index.html');
@@ -73,4 +94,37 @@ self.addEventListener('fetch', event => {
       }).catch(() => cached);
     })
   );
+});
+
+
+// ---------- Push notifications ----------
+self.addEventListener('push', event => {
+  let data = {};
+  try {
+    data = event.data ? event.data.json() : {};
+  } catch (e) {
+    data = { title: 'study.co', body: event.data ? event.data.text() : '' };
+  }
+  const title = data.title || 'study.co';
+  event.waitUntil(
+    self.registration.showNotification(title, {
+      body: data.body || '',
+      icon: '/icons/icon-192.png',
+      badge: '/icons/icon-192.png',
+      tag: data.tag || undefined,
+      data: { url: data.url || '/' }
+    })
+  );
+});
+
+self.addEventListener('notificationclick', event => {
+  event.notification.close();
+  const target = (event.notification.data && event.notification.data.url) || '/';
+  event.waitUntil((async () => {
+    const all = await clients.matchAll({ type: 'window', includeUncontrolled: true });
+    for (const c of all) {
+      if ('focus' in c) { await c.focus(); return; }
+    }
+    await clients.openWindow(target);
+  })());
 });
